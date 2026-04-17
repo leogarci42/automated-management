@@ -1,7 +1,9 @@
-func test(test, test, test)
+func test(test)
 {
-	while (x > 0)
-		x++
-	if (x == 0)
-		xaaaaaaaa
+while (x)
+	x
+ if (!x)
+ y--
+ z(a)
+ return x
 }
