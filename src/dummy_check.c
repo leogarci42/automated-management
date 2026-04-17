@@ -58,4 +58,5 @@ void dummy_parse(char *filename)
         print_token(token, 0);
         printf("==================\n\n");
     }
+	free_token(token);
 }

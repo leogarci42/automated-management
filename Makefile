@@ -16,24 +16,24 @@ MAKE = make -C
 all: $(NAME)
 
 $(NAME): $(OBJ)
-	@echo "$(BLUE)Compiling $(NAME)...$(RESET)"
+	@echo -e "$(BLUE)Compiling $(NAME)...$(RESET)"
 	@$(CC) $(CFLAGS) $(OBJ) -o $(NAME) $(LDFLAGS)
-	@echo "$(GREEN)Compilation successful!$(RESET)"
+	@echo -e "$(GREEN)Compilation successful!$(RESET)"
 
 
 $(OBJ_DIR)/%.o: %.c | $(DIRS)
-	@echo "$(YELLOW)Compiling $<...$(RESET)"
+	@echo -e "$(YELLOW)Compiling $<...$(RESET)"
 	@$(CC) $(CFLAGS) -c $< -o $@
 
 $(DIRS):
 	@mkdir -p $@
 
 clean:
-	@echo "$(RED)Cleaning object files...$(RESET)"
+	@echo -e "$(RED)Cleaning object files...$(RESET)"
 	@rm -rf $(OBJ_DIR)
 
 fclean: clean
-	@echo "$(RED)Cleaning executable $(NAME)...$(RESET)"
+	@echo -e "$(RED)Cleaning executable $(NAME)...$(RESET)"
 	@rm -f $(NAME)
 
 re: fclean all
@@ -47,9 +47,9 @@ rc:
 	@make re --no-print-directory && make clean --no-print-directory
 
 
-RESET  = \033[0m
-RED    = \033[31m
-GREEN  = \033[32m
-YELLOW = \033[33m
-BLUE   = \033[34m
-BOLD   = \033[1m
+RESET  = \e[0m
+RED    = \e[31m
+GREEN  = \e[32m
+YELLOW = \e[33m
+BLUE   = \e[34m
+BOLD   = \e[1m

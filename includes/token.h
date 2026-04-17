@@ -4,6 +4,7 @@ typedef enum e_token_type {
 	func,
 	ifelse,
 	loop,
+	statement,
 } t_token_type;
 
 typedef struct s_token {
@@ -16,3 +17,4 @@ typedef struct s_token {
 
 bool generate_token(int fd, char *buff, t_token **out_token);
 void print_token(t_token *token, int depth);
+void free_token(t_token *token);
