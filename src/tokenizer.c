@@ -15,6 +15,19 @@ void print_token(t_token *token, int depth)
         printf("[\033[36mIF/ELSE\033[0m] (Condition: \033[33m%s\033[0m)\n", token->context ? token->context : "none");
     else if (token->type == loop)
         printf("[\033[36mLOOP\033[0m] (Condition: \033[33m%s\033[0m)\n", token->context ? token->context : "none");
+    else if (token->type == assignment)
+        printf("[\033[36mASSIGNMENT\033[0m] \033[32m%s\033[0m = \033[35m%s\033[0m (Type: %s)\n", 
+               token->name ? token->name : "anon", 
+               token->context ? token->context : "none", 
+               token->var_type == TYPE_INT ? "int32" : (token->var_type == TYPE_CHAR ? "char" : (token->var_type == TYPE_VAR ? "var" : "unknown")));
+    else if (token->type == increment)
+        printf("[\033[36mINCREMENT\033[0m] \033[35m%s\033[0m\n", token->context ? token->context : "none");
+    else if (token->type == decrement)
+        printf("[\033[36mDECREMENT\033[0m] \033[35m%s\033[0m\n", token->context ? token->context : "none");
+    else if (token->type == func_call)
+        printf("[\033[36mFUNC_CALL\033[0m] \033[35m%s\033[0m\n", token->context ? token->context : "none");
+    else if (token->type == ret_statement)
+        printf("[\033[36mRETURN\033[0m] \033[35m%s\033[0m\n", token->context ? token->context : "none");
     else if (token->type == statement)
         printf("[\033[36mSTATEMENT\033[0m] \033[35m%s\033[0m\n", token->context ? token->context : "none");
         
@@ -214,6 +227,8 @@ static t_token* set_generic_token(char *to_tokenize, int *global_i, t_token_type
 	return (token);
 }
 
+#include "../patch_all.c"
+
 static t_token* get_statement_token(char *buff, int *i)
 {
 	t_token *token = (t_token *)malloc(sizeof(t_token));
@@ -240,6 +255,15 @@ static t_token* get_statement_token(char *buff, int *i)
 	if (buff[*i] == '\n')
 		(*i)++;
 		
+	if (strstr(token->context, "++"))
+		token->type = increment;
+	else if (strstr(token->context, "--"))
+		token->type = decrement;
+	else if (strncmp(token->context, "return ", 7) == 0 || strncmp(token->context, "return\t", 7) == 0)
+		token->type = ret_statement;
+	else if (strchr(token->context, '(') && strchr(token->context, ')'))
+		token->type = func_call;
+
 	return (token);
 }
 
@@ -272,6 +296,10 @@ static t_token* get_token_data(char *buff, int *i)
 			*i += (buff[*i + 5] == '(') ? 5 : 6;
 		return (set_generic_token(buff + *i, i, loop));
 	}
+
+	t_token *assign_token = try_get_assignment_token(buff, i);
+	if (assign_token)
+		return (assign_token);
 
 	return (get_statement_token(buff, i));
 }
