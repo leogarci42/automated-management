@@ -50,7 +50,6 @@ void dummy_parse(char *filename)
     
     t_token *token = NULL;
 	err->valid = parse_file(filename, &token);
-    
     if (!err->valid)
 	    error_printer(err);
     else if (token)

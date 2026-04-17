@@ -71,6 +71,8 @@ static char* get_context(char *buff, int *i)
 	int start = *i;
 	while (buff[*i] && isprint(buff[*i]) && buff[*i] != ')')
 		(*i)++;
+	if (buff[*i + 1] != '\n')
+		return (NULL);
 	int len = *i - start;
 	char *context = (char *)malloc(sizeof(char) * (len + 1));
 	if (!context)
@@ -109,6 +111,13 @@ static t_token* set_func_token(char *to_tokenize)
 		return (NULL);
     }
 	token->context = get_context(to_tokenize, &i);
+	if (!token->context)
+	{
+		free(token->name);
+		free(token);
+		err->valid = false;
+		return (NULL);
+	}
 	return (token);
 }
 
@@ -142,5 +151,5 @@ bool generate_token(int fd, char *buff, t_token **out_token)
         }
 		return (false);
 	}
-	return (true);
+	return (err->valid);
 }
