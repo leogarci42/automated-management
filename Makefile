@@ -1,11 +1,12 @@
 CC = cc
-NAME = minishell
-CFLAGS = -Wall -Wextra -Werror -I./includes/ -g3
+NAME = automated-management
+CFLAGS = -Wall -Wextra -I./includes/ -g3
 LDFLAGS = -lreadline
 OBJ_DIR = obj
 SRC =	./src/main.c \
 		./src/error.c \
-		./src/dummy_check.c
+		./src/dummy_check.c \
+		./src/tokenizer.c
 
 OBJ = $(addprefix $(OBJ_DIR)/, $(SRC:.c=.o))
 DIRS = $(sort $(dir $(OBJ)))
@@ -36,6 +37,10 @@ fclean: clean
 	@rm -f $(NAME)
 
 re: fclean all
+
+debug: CFLAGS += -g3 -fsanitize=address,undefined -O0 --pedantic-errors -Wpedantic -fno-omit-frame-pointer
+debug: re
+	
 
 .PHONY: all clean fclean re $(DIRS) rc 
 rc:

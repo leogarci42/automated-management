@@ -12,21 +12,24 @@ static bool check_file_extensions(char *filename)
 	return (false);
 }
 
-static bool parse_line(int fd)
+static bool parse_line(int fd, t_token **token)
 {
-	char buff[1024];
-	ssize_t r = read(fd, buff, 1024);
-	if (r < 0)
-	{
-		err->err_str = strdup("read error");
-		return (false);
-	}
-	else
-		err->valid = generate_token(fd, buff);
-	return (err->valid);
+        char buff[1025];
+        ssize_t r = read(fd, buff, 1024);
+        if (r < 0)
+        {
+                err->err_str = strdup("read error");
+                return (false);
+        }
+        else
+        {
+                buff[r] = '\0';
+                err->valid = generate_token(fd, buff, token);
+        }
+		return (err->valid);
 }
 
-static bool parse_file(char *filename)
+static bool parse_file(char *filename, t_token **token)
 {
 	int fd = open(filename, O_RDONLY);
 	if (fd < 0)
@@ -35,13 +38,25 @@ static bool parse_file(char *filename)
 		return (false);
 	}
 	else
-		err->valid = parse_line(fd);
+		err->valid = parse_line(fd, token);
+    close(fd);
+	return (err->valid);
 }
 
 void dummy_parse(char *filename)
 {
 	err->valid = check_file_extensions(filename);
 	error_printer(err);
-	err->valid = parse_file(filename); //TODO
-	// error_printer(err);
+    
+    t_token *token = NULL;
+	err->valid = parse_file(filename, &token);
+    
+    if (!err->valid)
+	    error_printer(err);
+    else if (token)
+    {
+        printf("\n=== AST Output ===\n");
+        print_token(token, 0);
+        printf("==================\n\n");
+    }
 }
