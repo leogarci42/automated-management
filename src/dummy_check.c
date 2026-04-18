@@ -1,5 +1,5 @@
-#include "header.h"
 #include <fcntl.h>
+#include "header.h"
 
 static bool check_file_extensions(char *filename)
 {
@@ -24,7 +24,7 @@ static bool parse_line(int fd, t_token **token)
         else
         {
                 buff[r] = '\0';
-                err->valid = generate_token(fd, buff, token);
+                err->valid = generate_token(buff, token);
         }
 		return (err->valid);
 }
@@ -123,3 +123,4 @@ void dummy_parse(char *filename)
     }
 	free_token(token);
 }
+

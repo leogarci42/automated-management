@@ -1,80 +1,5 @@
 #include "header.h"
 
-void print_token(t_token *token, int depth)
-{
-    if (!token) return;
-    
-    for (int i = 0; i < depth; i++)
-        printf("  ");
-        
-    if (token->type == func)
-    {
-        printf("[\033[36mFUNC\033[0m] \033[32m%s\033[0m (Context: \033[33m%s\033[0m)\n", token->name ? token->name : "anon", token->context ? token->context : "none");
-    }
-    else if (token->type == ifelse)
-        printf("[\033[36mIF/ELSE\033[0m] (Condition: \033[33m%s\033[0m)\n", token->context ? token->context : "none");
-    else if (token->type == loop)
-        printf("[\033[36mLOOP\033[0m] (Condition: \033[33m%s\033[0m)\n", token->context ? token->context : "none");
-    else if (token->type == assignment)
-        printf("[\033[36mASSIGNMENT\033[0m] \033[32m%s\033[0m = \033[35m%s\033[0m (Type: %s)\n", 
-               token->name ? token->name : "anon", 
-               token->context ? token->context : "none", 
-               token->var_type == TYPE_INT ? "int32" : (token->var_type == TYPE_CHAR ? "char" : (token->var_type == TYPE_VAR ? "var" : "unknown")));
-    else if (token->type == increment)
-        printf("[\033[36mINCREMENT\033[0m] \033[35m%s\033[0m\n", token->context ? token->context : "none");
-    else if (token->type == decrement)
-        printf("[\033[36mDECREMENT\033[0m] \033[35m%s\033[0m\n", token->context ? token->context : "none");
-    else if (token->type == func_call)
-        printf("[\033[36mFUNC_CALL\033[0m] \033[35m%s\033[0m\n", token->context ? token->context : "none");
-    else if (token->type == ret_statement)
-        printf("[\033[36mRETURN\033[0m] \033[35m%s\033[0m\n", token->context ? token->context : "none");
-    else if (token->type == statement)
-        printf("[\033[36mSTATEMENT\033[0m] \033[35m%s\033[0m\n", token->context ? token->context : "none");
-        
-    if (token->body)
-    {
-        for (int i = 0; i < depth; i++)
-            printf("  ");
-        printf("  |\n");
-        for (int i = 0; i < depth; i++)
-            printf("  ");
-        printf("  \\-> [BODY]\n");
-        print_token(token->body, depth + 1);
-    }
-    
-    if (token->next)
-    {
-        print_token(token->next, depth);
-    }
-}
-
-void free_token(t_token *token)
-{
-	if (!token) return;
-	
-	if (token->name)
-		free(token->name);
-	if (token->context)
-		free(token->context);
-	if (token->body)
-		free_token(token->body);
-	if (token->next)
-		free_token(token->next);
-		
-	free(token);
-}
-
-static void skip_whitespace(char *buff, int *i)
-{
-	while (buff[*i] == ' ' || buff[*i] == '\t' || buff[*i] == '\n' || buff[*i] == '\r')
-		(*i)++;
-}
-
-int	isprint(int c)
-{
-	return ((c >= 32) && (c <= 126));
-}
-
 static char* get_name(char *buff, int *i)
 {
 	int start = *i;
@@ -166,14 +91,10 @@ static t_token* parse_body(char *buff, int *i)
 
 static t_token* set_func_token(char *to_tokenize, int *global_i)
 {
-	t_token *token = (t_token *)malloc(sizeof(t_token));
+	t_token *token = (t_token *)calloc(1, sizeof(t_token));
 	if (!token)
 		return (NULL);
 	token->type = func;
-    token->body = NULL;
-    token->next = NULL;
-    token->context = NULL;
-    token->name = NULL;
     
 	int i = 0;
 	skip_whitespace(to_tokenize, &i);
@@ -204,14 +125,10 @@ static t_token* set_func_token(char *to_tokenize, int *global_i)
 
 static t_token* set_generic_token(char *to_tokenize, int *global_i, t_token_type type)
 {
-	t_token *token = (t_token *)malloc(sizeof(t_token));
+	t_token *token = (t_token *)calloc(1, sizeof(t_token));
 	if (!token)
 		return (NULL);
 	token->type = type;
-    token->body = NULL;
-    token->next = NULL;
-    token->context = NULL;
-    token->name = NULL;
     
 	int i = 0;
 	skip_whitespace(to_tokenize, &i);
@@ -227,17 +144,17 @@ static t_token* set_generic_token(char *to_tokenize, int *global_i, t_token_type
 	return (token);
 }
 
-#include "../patch_all.c"
+static t_token *try_get_assignment_token(char *buff, int *i) {
+    (void)buff;
+    (void)i;
+    return (NULL);
+}
 
 static t_token* get_statement_token(char *buff, int *i)
 {
-	t_token *token = (t_token *)malloc(sizeof(t_token));
+	t_token *token = (t_token *)calloc(1, sizeof(t_token));
 	if (!token) return (NULL);
 	token->type = statement;
-	token->body = NULL;
-	token->next = NULL;
-	token->name = NULL;
-	token->context = NULL;
 	
 	int start = *i;
 	while (buff[*i] && buff[*i] != '\n' && buff[*i] != '}' && buff[*i] != '{')
@@ -304,9 +221,8 @@ static t_token* get_token_data(char *buff, int *i)
 	return (get_statement_token(buff, i));
 }
 
-bool generate_token(int fd, char *buff, t_token **out_token)
+bool generate_token(char *buff, t_token **out_token)
 {
-	(void)fd; //TO HANDLE
 	int i = 0;
 	skip_whitespace(buff, &i);
 	if (buff[i] == '\0')

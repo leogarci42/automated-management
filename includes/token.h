@@ -25,10 +25,16 @@ typedef struct s_token {
 	char *name;
 	char *context;
 	t_var_type var_type;
+	
+	struct s_token *lhs;
+	struct s_token *rhs;
+	
 	struct s_token *body;
 	struct s_token *next;
 } t_token;
 
-bool generate_token(int fd, char *buff, t_token **out_token);
+bool generate_token(char *buff, t_token **out_token);
 void print_token(t_token *token, int depth);
 void free_token(t_token *token);
+void skip_whitespace(char *buff, int *i);
+int	isprint(int c);
