@@ -223,21 +223,32 @@ static t_token* get_token_data(char *buff, int *i)
 
 bool generate_token(char *buff, t_token **out_token)
 {
-	int i = 0;
-	skip_whitespace(buff, &i);
-	if (buff[i] == '\0')
-	{
-		return (true);
-	}
-	*out_token = get_token_data(buff, &i);
-	if (!*out_token)
-	{
-        if (err->valid && !err->err_str)
-        {
-		    err->err_str = strdup("Token generation failed or missing token");
-            err->valid = false;
+    int i = 0;
+    t_token *head = NULL;
+    t_token *current = NULL;
+    
+    skip_whitespace(buff, &i);
+    if (buff[i] == '\0') {
+        return (true);
+    }
+    
+    while (buff[i]) {
+        skip_whitespace(buff, &i);
+        if (buff[i] == '\0') break;
+        
+        t_token *new_token = get_token_data(buff, &i);
+        if (!new_token) {
+            if (err->valid && !err->err_str) {
+                err->err_str = strdup("Token generation failed or missing token");
+                err->valid = false;
+            }
+            return false;
         }
-		return (false);
-	}
-	return (err->valid);
+        
+        if (!head) head = new_token;
+        else current->next = new_token;
+        current = new_token;
+    }
+    *out_token = head;
+    return err->valid;
 }

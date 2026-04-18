@@ -100,7 +100,7 @@ static bool validate_types(t_token *token, t_symbol **table) {
     return true;
 }
 
-void dummy_parse(char *filename)
+void dummy_parse(char *filename, bool emit_llvm)
 {
 	err->valid = check_file_extensions(filename);
 	error_printer(err);
@@ -118,6 +118,20 @@ void dummy_parse(char *filename)
             printf("\n=== AST Output ===\n");
             print_token(token, 0);
             printf("==================\n\n");
+            generate_llvm_ir(token, "output.ll");
+            if (emit_llvm) {
+                printf("[INFO] Preserving output.ll\n");
+            }
+            
+            int ret = system("clang output.ll -o a.out > /dev/null 2>&1");
+            if (ret == 0) {
+            	printf("[SUCCESS] Generated binary 'a.out'. Try running ./a.out\n");
+            	if (!emit_llvm) {
+            		remove("output.ll");
+            	}
+            } else {
+            	printf("[ERROR] Failed to compile LLVM IR to binary. Do you have clang installed?\n");
+            }
         }
         free_symbol_table(table);
     }

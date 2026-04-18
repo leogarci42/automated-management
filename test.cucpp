@@ -1,9 +1,17 @@
-func test(test)
+func z(a)
 {
-while (x)
-	x
- if (!x)
- y--
- z(a)
- return x
+    a--
+    return a
+}
+
+func main()
+{
+    x = 12
+    while (x > 0)
+        x++
+    if (x)
+		x--
+	z(a)
+    print(x)
+    return x
 }

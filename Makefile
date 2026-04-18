@@ -10,7 +10,8 @@ SRC =	./src/main.c \
 		./src/helpers/free_token.c \
 		./src/helpers/print_AST.c \
 		./src/helpers/useful.c \
-		./src/fd_tracker.c
+		./src/fd_tracker.c \
+                ./src/helpers/codegen.c
 
 OBJ = $(addprefix $(OBJ_DIR)/, $(SRC:.c=.o))
 DIRS = $(sort $(dir $(OBJ)))
