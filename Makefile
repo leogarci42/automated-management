@@ -1,12 +1,16 @@
 CC = cc
 NAME = automated-management
-CFLAGS = -Wall -Wextra -I./includes/ -g3
+CFLAGS = -Wall -Wextra -I./includes/ -g3 -Wno-unused-command-line-argument
 LDFLAGS = -lreadline
 OBJ_DIR = obj
 SRC =	./src/main.c \
-		./src/error.c \
+		./src/helpers/error.c \
 		./src/dummy_check.c \
-		./src/tokenizer.c
+		./src/tokenizer.c \
+		./src/helpers/free_token.c \
+		./src/helpers/print_AST.c \
+		./src/helpers/useful.c \
+		./src/fd_tracker.c
 
 OBJ = $(addprefix $(OBJ_DIR)/, $(SRC:.c=.o))
 DIRS = $(sort $(dir $(OBJ)))
@@ -16,29 +20,29 @@ MAKE = make -C
 all: $(NAME)
 
 $(NAME): $(OBJ)
-	@echo -e "$(BLUE)Compiling $(NAME)...$(RESET)"
+	@printf "$(BLUE)Compiling $(NAME)...$(RESET)\n"
 	@$(CC) $(CFLAGS) $(OBJ) -o $(NAME) $(LDFLAGS)
-	@echo -e "$(GREEN)Compilation successful!$(RESET)"
+	@printf "$(GREEN)Compilation successful!$(RESET)\n"
 
 
 $(OBJ_DIR)/%.o: %.c | $(DIRS)
-	@echo -e "$(YELLOW)Compiling $<...$(RESET)"
+	@printf "$(YELLOW)Compiling $<...$(RESET)\n"
 	@$(CC) $(CFLAGS) -c $< -o $@
 
 $(DIRS):
 	@mkdir -p $@
 
 clean:
-	@echo -e "$(RED)Cleaning object files...$(RESET)"
+	@printf "$(RED)Cleaning object files...$(RESET)\n"
 	@rm -rf $(OBJ_DIR)
 
 fclean: clean
-	@echo -e "$(RED)Cleaning executable $(NAME)...$(RESET)"
+	@printf "$(RED)Cleaning executable $(NAME)...$(RESET)\n"
 	@rm -f $(NAME)
 
 re: fclean all
 
-debug: CFLAGS += -g3 -fsanitize=address,undefined -O0 --pedantic-errors -Wpedantic -fno-omit-frame-pointer
+debug: CFLAGS += -g3 -DTRACK_FD -fsanitize=address,undefined -O0 --pedantic-errors -Wpedantic -fno-omit-frame-pointer -DTRACK_FD
 debug: re
 	
 
