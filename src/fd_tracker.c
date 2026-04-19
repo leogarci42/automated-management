@@ -1,6 +1,6 @@
 #ifdef TRACK_FD
 
-/* Undefine the macros in this file so we can call original functions */
+
 #undef open
 #undef close
 #undef dup
@@ -71,7 +71,7 @@ int tracked_open(const char *src_file, int src_line, const char *pathname, int f
         mode = va_arg(args, int);
         va_end(args);
     }
-    // Use raw syscall to avoid routing back into open() unpredictably
+    
     int fd = syscall(SYS_open, pathname, flags, mode);
     if (fd >= 0) {
         register_fd(fd, pathname, src_file, src_line);
@@ -131,14 +131,14 @@ __attribute__((destructor)) static void check_fd_leaks(void) {
     fprintf(stderr, "FD-Sanitizer: File Descriptor Leak Report\n");
     fprintf(stderr, "=================================================================\n");
     
-    // We start from 3 to skip tracking standard stdin/stdout/stderr
+    
     for (int i = 3; i < MAX_FDS; i++) {
         if (fd_registry[i].active) {
             fprintf(stderr, "LEAK: FD %d open in %s:%d\n", i, fd_registry[i].src_file, fd_registry[i].src_line);
             fprintf(stderr, "  Path/Details: %s\n\n", fd_registry[i].path);
             leak_count++;
             
-            // Clean up surviving memory in the tracker
+            
             free(fd_registry[i].path);
             fd_registry[i].path = NULL;
         }
@@ -153,4 +153,4 @@ __attribute__((destructor)) static void check_fd_leaks(void) {
     pthread_mutex_unlock(&fd_mutex);
 }
 
-#endif /* TRACK_FD */
+#endif 

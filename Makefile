@@ -11,7 +11,9 @@ SRC =	./src/main.c \
 		./src/helpers/print_AST.c \
 		./src/helpers/useful.c \
 		./src/fd_tracker.c \
-                ./src/helpers/codegen.c
+        ./src/codegen/cpu-based/codegen.c \
+        ./src/codegen/cpu-based/node_generator.c \
+		./src/codegen/cpu-based/helpers/codegen_cpu_helpers.c
 
 OBJ = $(addprefix $(OBJ_DIR)/, $(SRC:.c=.o))
 DIRS = $(sort $(dir $(OBJ)))

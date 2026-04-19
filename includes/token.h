@@ -9,14 +9,14 @@ typedef enum e_var_type {
 } t_var_type;
 
 typedef enum e_token_type {
-	func,
+	compute,
 	ifelse,
 	loop,
 	statement,
 	assignment,
 	increment,
 	decrement,
-	func_call,
+	compute_call,
 	ret_statement,
 } t_token_type;
 

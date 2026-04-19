@@ -1,4 +1,4 @@
-#include "header.h"
+#include "codegen.h"
 
 static char* get_name(char *buff, int *i)
 {
@@ -89,18 +89,18 @@ static t_token* parse_body(char *buff, int *i)
 	return (body_head);
 }
 
-static t_token* set_func_token(char *to_tokenize, int *global_i)
+static t_token* set_compute_token(char *to_tokenize, int *global_i)
 {
 	t_token *token = (t_token *)calloc(1, sizeof(t_token));
 	if (!token)
 		return (NULL);
-	token->type = func;
+	token->type = compute;
     
 	int i = 0;
 	skip_whitespace(to_tokenize, &i);
 	if (to_tokenize[i] == '\0')
 	{
-		err->err_str = strdup("no function name\n");
+		err->err_str = strdup("no computetion name\n");
 		free(token);
 		return (NULL);
 	}
@@ -179,7 +179,7 @@ static t_token* get_statement_token(char *buff, int *i)
 	else if (strncmp(token->context, "return ", 7) == 0 || strncmp(token->context, "return\t", 7) == 0)
 		token->type = ret_statement;
 	else if (strchr(token->context, '(') && strchr(token->context, ')'))
-		token->type = func_call;
+		token->type = compute_call;
 
 	return (token);
 }
@@ -190,10 +190,10 @@ static t_token* get_token_data(char *buff, int *i)
 	if (!buff[*i] || buff[*i] == '}')
 		return (NULL);
 
-	if (strncmp(buff + *i, "func ", 5) == 0 || strncmp(buff + *i, "func\t", 5) == 0 || strncmp(buff + *i, "func(", 5) == 0)
+	if (strncmp(buff + *i, "compute ", 8) == 0 || strncmp(buff + *i, "compute\t", 8) == 0 || strncmp(buff + *i, "compute(", 8) == 0)
 	{
-		if (buff[*i + 4] == '(') *i += 4; else *i += 5;
-		return (set_func_token(buff + *i, i));
+		if (buff[*i + 7] == '(') *i += 7; else *i += 8;
+		return (set_compute_token(buff + *i, i));
 	}
 	else if (strncmp(buff + *i, "ifelse ", 7) == 0 || strncmp(buff + *i, "ifelse\t", 7) == 0 || strncmp(buff + *i, "ifelse(", 7) == 0 ||
 			 strncmp(buff + *i, "if ", 3) == 0 || strncmp(buff + *i, "if\t", 3) == 0 || strncmp(buff + *i, "if(", 3) == 0)

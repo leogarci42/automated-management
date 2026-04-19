@@ -1,5 +1,5 @@
 #include <fcntl.h>
-#include "header.h"
+#include "codegen.h"
 
 static bool check_file_extensions(char *filename)
 {
@@ -118,7 +118,7 @@ void dummy_parse(char *filename, bool emit_llvm, char *out_bin)
             printf("\n=== AST Output ===\n");
             print_token(token, 0);
             printf("==================\n\n");
-            generate_llvm_ir(token, "output.ll");
+            generate_llvm_ir_cpu(token, "output.ll");
             if (emit_llvm) {
                 printf("[INFO] Preserving output.ll\n");
             }

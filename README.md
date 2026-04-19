@@ -1,11 +1,11 @@
 # Cucpp Language Reference Manual (v1.0)
 
 ## NAME
-**Cucpp** — A minimalist, Static Single Assignment (SSA) friendly, purely functional programming language compiling to LLVM IR.
+**Cucpp** — A minimalist, Static Single Assignment (SSA) friendly, purely computational programming language compiling to LLVM IR.
 
 ## SYNOPSIS
 ```console
-./automated-management <source_file.cucpp> [--emit-llvm]
+./cucpp <source_file.cucpp> [--emit-llvm]
 ```
 
 ## DESCRIPTION
@@ -18,15 +18,15 @@ All integers in Cucpp are treated as 32-bit signed integers (`i32` in LLVM).
 ## LANGUAGE SPECIFICATION
 
 ### 1. Program Structure
-A Cucpp program is a collection of functions. There are no global variables. The entry point of a Cucpp compiled binary is the `main` function.
+A Cucpp program is a collection of computations. There are no global variables. The entry point of a Cucpp compiled binary is the `main` computation.
 
-### 2. Function Definitions (`func`)
-Functions are the primary abstraction block. 
-*   **Syntax:** `func <name>(<arguments>) { <body> }`
-*   Functions can take arguments and must return a value. 
+### 2. Computetion Definitions (`compute`)
+Computations are the primary abstraction block. 
+*   **Syntax:** `compute <name>(<arguments>) { <body> }`
+*   Computations can take arguments and must return a value. 
 *   **Example:**
     ```c
-    func z(a) {
+    compute z(a) {
         a1 = a - 1
         return a1
     }
@@ -45,7 +45,7 @@ Variables are bound to expressions using the `=` operator.
 ### 4. Control Flow (`if` / `ifelse`)
 Cucpp branches logic based on conditions.
 *   **Syntax:** `if (<condition>) { <body> }` or `ifelse (<condition>) { <body> }`
-*   No parentheses are strictly strictly required for the body unless utilizing multiple statements, but braces `{ }` and indentation govern the scoped body.
+*   No parentheses are strictly required for the body unless utilizing multiple statements, but braces `{ }` and indentation govern the scoped body.
 *   **Example:**
     ```c
     if (x > 0)
@@ -54,34 +54,34 @@ Cucpp branches logic based on conditions.
 
 ### 5. Iteration (Recursion)
 `while`, `for`, and `loop` iteration blocks are parsed but actively discouraged in pure-SSA generated representations. 
-*   **Best Practice:** Use tail-recursive functions to represent iterative loops. LLVM natively optimizes tail-recursion back into pure SSA loop (`phi` nodes) without memory overhead.
+*   **Best Practice:** Use tail-recursive computations to represent iterative loops. LLVM natively optimizes tail-recursion back into pure SSA loop (`phi` nodes) without memory overhead.
 *   **Example:**
     ```c
-    func loop(x) {
+    compute loop(x) {
         if (x > 0)
             return loop(x - 1)
         return x
     }
     ```
 
-### 6. Expressions & Function Calls
-Variables can be passed to functions. The tokenizer parses any string matching the format `name(args)` as a `func_call` natively.
-*   **Syntax:** `var_name = func_name(args)`
+### 6. Expressions & Computetion Calls
+Variables can be passed to computations. The tokenizer parses any string matching the format `name(args)` as a `compute_call` natively.
+*   **Syntax:** `var_name = compute_name(args)`
 *   **Example:** `x2 = loop(x1)`
 
-### 7. Built-in Functions
+### 7. Built-in Computations
 Cucpp comes with statically linked built-ins that interact with the C standard library.
 *   `print(x)`: Outputs an integer followed by a newline (internally maps to `printf("%d\n", x)`).
 
 ### 8. Return Statements (`return`)
-Returns a value from the current function block.
+Returns a value from the current computation block.
 *   **Syntax:** `return <expression>`
 *   **Example:** `return x3`
 
 ---
 
 ## AST AND COMPILATION PIPELINE
-1. **Tokenizer:** Parses `.cucpp` files into token nodes (`func`, `statement`, `func_call`, `ifelse`, `ret_statement`).
+1. **Tokenizer:** Parses `.cucpp` files into token nodes (`compute`, `statement`, `compute_call`, `ifelse`, `ret_statement`).
 2. **Type Checking:** Maps basic symbol tracking to ensure variable types aren't abruptly reassigned in validation.
 3. **Codegen:** Generates SSA optimized `output.ll` using `printf` linkages.
 4. **Clang backend:** Invokes `clang` on the generated IR to produce `a.out`.
@@ -90,13 +90,13 @@ Returns a value from the current function block.
 
 ### Standard Recursive Decrement Program
 ```c
-func loop(x) {
+compute loop(x) {
     if (x > 0)
         return loop(x - 1)
     return x
 }
 
-func main() {
+compute main() {
     x1 = 12
     x2 = loop(x1)
     print(x2)
