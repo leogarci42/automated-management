@@ -2,4 +2,4 @@
 
 #include "header.h"
 
-void dummy_parse(char *filename, bool emit_llvm);
+void dummy_parse(char *filename, bool emit_llvm, char *out_bin);

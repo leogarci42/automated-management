@@ -1,5 +1,5 @@
 CC = cc
-NAME = automated-management
+NAME = cucpp
 CFLAGS = -Wall -Wextra -I./includes/ -g3 -Wno-unused-command-line-argument
 LDFLAGS = -lreadline
 OBJ_DIR = obj

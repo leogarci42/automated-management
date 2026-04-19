@@ -100,7 +100,7 @@ static bool validate_types(t_token *token, t_symbol **table) {
     return true;
 }
 
-void dummy_parse(char *filename, bool emit_llvm)
+void dummy_parse(char *filename, bool emit_llvm, char *out_bin)
 {
 	err->valid = check_file_extensions(filename);
 	error_printer(err);
@@ -123,14 +123,23 @@ void dummy_parse(char *filename, bool emit_llvm)
                 printf("[INFO] Preserving output.ll\n");
             }
             
-            int ret = system("clang output.ll -o a.out > /dev/null 2>&1");
+            char cmd[512];
+            snprintf(cmd, sizeof(cmd), "clang -g -Wno-override-module output.ll -o %s 2> clang_error.log", out_bin);
+            int ret = system(cmd);
             if (ret == 0) {
-            	printf("[SUCCESS] Generated binary 'a.out'. Try running ./a.out\n");
+            	printf("[SUCCESS] Generated binary '%s'. Try running ./%s\n", out_bin, out_bin);
+                remove("clang_error.log");
             	if (!emit_llvm) {
             		remove("output.ll");
             	}
             } else {
-            	printf("[ERROR] Failed to compile LLVM IR to binary. Do you have clang installed?\n");
+            	printf("\n[ERROR] Failed to compile LLVM IR to binary. Details below:\n");
+                printf("----------------------- CLANG ERROR -----------------------\n");
+                fflush(stdout);
+                system("cat clang_error.log");
+                remove("clang_error.log");
+                printf("-----------------------------------------------------------\n");
+                printf("[HINT] Run with --emit-llvm and check the generated 'output.ll' file.\n");
             }
         }
         free_symbol_table(table);

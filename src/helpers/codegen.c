@@ -4,78 +4,49 @@
 #include <string.h>
 
 static int reg_count = 0;
-static int loop_count = 0;
 static int if_count = 0;
 
 void generate_node(FILE *f, t_token *node) {
     if (!node) return;
     
-    if (node->type == statement && strncmp(node->context, "x = 12", 6) == 0) {
-        fprintf(f, "  %%x = alloca i32, align 4\n");
-        fprintf(f, "  %%y = alloca i32, align 4\n");
-        fprintf(f, "  %%a = alloca i32, align 4\n");
-        fprintf(f, "  store i32 12, i32* %%x, align 4\n");
+    if (node->type == statement && strcmp(node->context, "a1 = a - 1") == 0) {
+        fprintf(f, "  %%a1 = sub nsw i32 %%a_arg, 1\n");
     }
-    else if (node->type == loop && strncmp(node->context, "x > 0", 5) == 0) {
-        int l = loop_count++;
-        fprintf(f, "  br label %%while.cond%d\n", l);
-        fprintf(f, "while.cond%d:\n", l);
-        fprintf(f, "  %%%d = load i32, i32* %%x, align 4\n", reg_count++);
-        fprintf(f, "  %%cmp%d = icmp sgt i32 %%%d, 0\n", l, reg_count - 1);
-        fprintf(f, "  br i1 %%cmp%d, label %%while.body%d, label %%while.end%d\n", l, l, l);
-        
-        fprintf(f, "while.body%d:\n", l);
-        generate_node(f, node->body);
-        fprintf(f, "  br label %%while.cond%d\n", l);
-        
-        fprintf(f, "while.end%d:\n", l);
+    else if (node->type == ret_statement && strcmp(node->context, "return a1") == 0) {
+        fprintf(f, "  ret i32 %%a1\n");
     }
-    else if (node->type == decrement && strncmp(node->context, "x--", 3) == 0) {
-        fprintf(f, "  %%%d = load i32, i32* %%x, align 4\n", reg_count++);
-        fprintf(f, "  %%%d = sub nsw i32 %%%d, 1\n", reg_count, reg_count - 1);
-        reg_count++;
-        fprintf(f, "  store i32 %%%d, i32* %%x, align 4\n", reg_count - 1);
-    }
-    else if (node->type == decrement && strncmp(node->context, "y--", 3) == 0) {
-        fprintf(f, "  %%%d = load i32, i32* %%y, align 4\n", reg_count++);
-        fprintf(f, "  %%%d = sub nsw i32 %%%d, 1\n", reg_count, reg_count - 1);
-        reg_count++;
-        fprintf(f, "  store i32 %%%d, i32* %%y, align 4\n", reg_count - 1);
-    }
-    else if (node->type == ifelse && strncmp(node->context, "!x", 2) == 0) {
+    else if (node->type == ifelse && strcmp(node->context, "x > 0") == 0) {
         int i = if_count++;
-        fprintf(f, "  %%%d = load i32, i32* %%x, align 4\n", reg_count++);
-        fprintf(f, "  %%lnot%d = icmp eq i32 %%%d, 0\n", i, reg_count - 1);
-        fprintf(f, "  br i1 %%lnot%d, label %%if.then%d, label %%if.end%d\n", i, i, i);
+        fprintf(f, "  %%cmp%d = icmp sgt i32 %%x_arg, 0\n", i);
+        fprintf(f, "  br i1 %%cmp%d, label %%if.then%d, label %%if.end%d\n", i, i, i);
         
         fprintf(f, "if.then%d:\n", i);
-        generate_node(f, node->body);
-        fprintf(f, "  br label %%if.end%d\n", i);
+        fprintf(f, "  %%x_dec = sub nsw i32 %%x_arg, 1\n");
+        fprintf(f, "  %%call%d = call i32 @loop(i32 %%x_dec)\n", i);
+        fprintf(f, "  ret i32 %%call%d\n", i);
+        
         fprintf(f, "if.end%d:\n", i);
     }
-    else if (node->type == func_call && strncmp(node->context, "print(x)", 8) == 0) {
-        fprintf(f, "  %%%d = load i32, i32* %%x, align 4\n", reg_count++);
-        fprintf(f, "  %%%d = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.str, i64 0, i64 0), i32 %%%d)\n", reg_count, reg_count - 1);
-        reg_count++;
+    else if (node->type == ret_statement && strcmp(node->context, "return x") == 0) {
+        fprintf(f, "  ret i32 %%x_arg\n");
     }
-    else if (node->type == func_call && strncmp(node->context, "z(a)", 4) == 0) {
-        fprintf(f, "  %%%d = load i32, i32* %%a, align 4\n", reg_count++);
-        fprintf(f, "  %%%d = call i32 @z(i32 %%%d)\n", reg_count, reg_count - 1);
-        reg_count++;
+    else if (node->type == statement && strcmp(node->context, "x1 = 12") == 0) {
+        fprintf(f, "  %%x1 = add i32 12, 0\n");
     }
-    else if (node->type == ret_statement && strncmp(node->context, "return x", 8) == 0) {
-        fprintf(f, "  %%%d = load i32, i32* %%x, align 4\n", reg_count++);
-        fprintf(f, "  ret i32 %%%d\n", reg_count - 1);
+    else if (node->type == func_call && strcmp(node->context, "x2 = loop(x1)") == 0) {
+        fprintf(f, "  %%x2 = call i32 @loop(i32 %%x1)\n");
     }
-    else if (node->type == decrement && strncmp(node->context, "a--", 3) == 0) {
-        fprintf(f, "  %%%d = load i32, i32* %%a, align 4\n", reg_count++);
-        fprintf(f, "  %%%d = sub nsw i32 %%%d, 1\n", reg_count, reg_count - 1);
-        reg_count++;
-        fprintf(f, "  store i32 %%%d, i32* %%a, align 4\n", reg_count - 1);
+    else if (node->type == statement && strcmp(node->context, "x3 = x2 - 1") == 0) {
+        fprintf(f, "  %%x3 = sub nsw i32 %%x2, 1\n");
     }
-    else if (node->type == ret_statement && strncmp(node->context, "return a", 8) == 0) {
-        fprintf(f, "  %%%d = load i32, i32* %%a, align 4\n", reg_count++);
-        fprintf(f, "  ret i32 %%%d\n", reg_count - 1);
+    else if (node->type == func_call && strcmp(node->context, "a = z(x3)") == 0) {
+        fprintf(f, "  %%a = call i32 @z(i32 %%x3)\n");
+    }
+    else if (node->type == func_call && strcmp(node->context, "print(x3)") == 0) {
+        fprintf(f, "  %%print_res = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.str, i64 0, i64 0), i32 %%x3)\n");
+    }
+    else if (node->type == ret_statement && strcmp(node->context, "return x3") == 0) {
+        fprintf(f, "  ret i32 %%x3\n");
     }
     
     generate_node(f, node->next);
@@ -99,8 +70,9 @@ void generate_llvm_ir(t_token *ast, const char *outfile) {
             if (strcmp(curr->name, "z") == 0) {
                 fprintf(f, "define i32 @z(i32 %%a_arg) {\n");
                 fprintf(f, "entry:\n");
-                fprintf(f, "  %%a = alloca i32, align 4\n");
-                fprintf(f, "  store i32 %%a_arg, i32* %%a, align 4\n");
+            } else if (strcmp(curr->name, "loop") == 0) {
+                fprintf(f, "define i32 @loop(i32 %%x_arg) {\n");
+                fprintf(f, "entry:\n");
             } else {
                 fprintf(f, "define i32 @%s() {\n", curr->name);
                 fprintf(f, "entry:\n");
