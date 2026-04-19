@@ -1,77 +1,105 @@
-# AUTOMATED-MANAGEMENT
+# Cucpp Language Reference Manual (v1.0)
 
-**Automated-Management** is a C-based project designed to parse and tokenize a custom programming language with the `.cucpp` file extension. The program reads a `.cucpp` source file and generates an Abstract Syntax Tree (AST), outputting a colored structural representation directly to the terminal.
+## NAME
+**Cucpp** — A minimalist, Static Single Assignment (SSA) friendly, purely computetional programming language compiling to LLVM IR.
 
-## Getting Started
-
-### Building
-The project includes a `Makefile` for easy compilation. Simply run:
-```bash
-make
+## SYNOPSIS
+```console
+./automated-management <source_file.cucpp> [--emit-llvm]
 ```
 
-### Usage
-Run the generated executable with a `.cucpp` file as an argument. If no argument is provided, the program will explain its usage.
-```bash
-./<executable_name> <filename.cucpp>
-```
-*Note: Run with `--help` for additional usage information if implemented.*
+## DESCRIPTION
+Cucpp is built to enforce an SSA-friendly paradigm. It removes mutable state (re-assignment) and standard loop constructs in favor of variable shadowing and tail-recursion. This ensures a 1-to-1 mapping with LLVM's Intermediate Representation (IR), eliminating the need for stack allocations (`alloca`) and memory store/loads entirely.
 
-## The `.cucpp` Language Syntax
+All integers in Cucpp are treated as 32-bit signed integers (`i32` in LLVM).
 
-The custom language parsed by this project supports basic programmatic constructs like functions, conditionals, loops, and raw statements.
+---
 
-### 1. File Extension
-All source files must use the exact `.cucpp` extension to be parsed correctly.
+## LANGUAGE SPECIFICATION
 
-### 2. Functions
-Functions are declared using the `func` keyword, followed by the function name, its arguments enclosed in parentheses `()`, and the body enclosed in curly braces `{}`.
+### 1. Program Structure
+A Cucpp program is a collection of computetions. There are no global variables. The entry point of a Cucpp compiled binary is the `main` computetion.
 
-```cucpp
-func my_function(arg1, arg2) {
-    // body
+### 2. Computetion Definitions (`compute`)
+Computetions are the primary abstraction block. 
+*   **Syntax:** `compute <name>(<arguments>) { <body> }`
+*   Computetions can take arguments and must return a value. 
+*   **Example:**
+    ```c
+    compute z(a) {
+        a1 = a - 1
+        return a1
+    }
+    ```
+
+### 3. Variables and Immutable Bindings
+Variables are bound to expressions using the `=` operator.
+*   **Mutation is avoided:** To abide by strict SSA form, a variable should not be re-assigned. Instead, compute a new variable (Shadowing).
+*   **Syntax:** `<name> = <expression>`
+*   **Example:**
+    ```c
+    x1 = 12
+    x2 = x1 - 1
+    ```
+
+### 4. Control Flow (`if` / `ifelse`)
+Cucpp branches logic based on conditions.
+*   **Syntax:** `if (<condition>) { <body> }` or `ifelse (<condition>) { <body> }`
+*   No parentheses are strictly strictly required for the body unless utilizing multiple statements, but braces `{ }` and indentation govern the scoped body.
+*   **Example:**
+    ```c
+    if (x > 0)
+        return loop(x - 1)
+    ```
+
+### 5. Iteration (Recursion)
+`while`, `for`, and `loop` iteration blocks are parsed but actively discouraged in pure-SSA generated representations. 
+*   **Best Practice:** Use tail-recursive computetions to represent iterative loops. LLVM natively optimizes tail-recursion back into pure SSA loop (`phi` nodes) without memory overhead.
+*   **Example:**
+    ```c
+    compute loop(x) {
+        if (x > 0)
+            return loop(x - 1)
+        return x
+    }
+    ```
+
+### 6. Expressions & Computetion Calls
+Variables can be passed to computetions. The tokenizer parses any string matching the format `name(args)` as a `compute_call` natively.
+*   **Syntax:** `var_name = compute_name(args)`
+*   **Example:** `x2 = loop(x1)`
+
+### 7. Built-in Computetions
+Cucpp comes with statically linked built-ins that interact with the C standard library.
+*   `print(x)`: Outputs an integer followed by a newline (internally maps to `printf("%d\n", x)`).
+
+### 8. Return Statements (`return`)
+Returns a value from the current computetion block.
+*   **Syntax:** `return <expression>`
+*   **Example:** `return x3`
+
+---
+
+## AST AND COMPILATION PIPELINE
+1. **Tokenizer:** Parses `.cucpp` files into token nodes (`compute`, `statement`, `compute_call`, `ifelse`, `ret_statement`).
+2. **Type Checking:** Maps basic symbol tracking to ensure variable types aren't abruptly reassigned in validation.
+3. **Codegen:** Generates SSA optimized `output.ll` using `printf` linkages.
+4. **Clang backend:** Invokes `clang` on the generated IR to produce `a.out`.
+
+## EXAMPLES
+
+### Standard Recursive Decrement Program
+```c
+compute loop(x) {
+    if (x > 0)
+        return loop(x - 1)
+    return x
+}
+
+compute main() {
+    x1 = 12
+    x2 = loop(x1)
+    print(x2)
+    return x2
 }
 ```
-
-### 3. Conditionals
-Conditional blocks can be declared with the `if` or `ifelse` keywords.
-
-```cucpp
-if (x == 0) {
-    // statement
-}
-
-ifelse (y > 10) {
-    // statement
-}
-```
-
-### 4. Loops
-Loop blocks can be declared using the `while` or `loop` keywords.
-
-```cucpp
-while (x > 0) {
-    x++
-}
-
-loop (i < 10) {
-    i++
-}
-```
-
-### 5. Statements
-Any other code inside a block that does not match the keywords above is treated as a generic statement. Statements span until the end of the line or until a block delimiter (`{` or `}`) is encountered.
-
-## Example File (`test.cucpp`)
-
-```cucpp
-func test(test, test, test)
-{
-	while (x > 0)
-		x++
-	if (x == 0)
-		xaaaaaaaa
-}
-```
-
-When parsed, the tokenizer will evaluate `func`, its `(test, test, test)` context, and associate the nested `while` and `if` nodes (and their containing statements) as its body, ultimately generating a clear structural AST output.
