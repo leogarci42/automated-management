@@ -1,11 +1,11 @@
 # Cucpp Language Reference Manual (v1.0)
 
 ## NAME
-**Cucpp** — A minimalist, Static Single Assignment (SSA) friendly, purely computetional programming language compiling to LLVM IR.
+**Cucpp** — A minimalist, Static Single Assignment (SSA) friendly, purely computational programming language compiling to LLVM IR.
 
 ## SYNOPSIS
 ```console
-./automated-management <source_file.cucpp> [--emit-llvm]
+./cucpp <source_file.cucpp> [--emit-llvm]
 ```
 
 ## DESCRIPTION
@@ -18,12 +18,12 @@ All integers in Cucpp are treated as 32-bit signed integers (`i32` in LLVM).
 ## LANGUAGE SPECIFICATION
 
 ### 1. Program Structure
-A Cucpp program is a collection of computetions. There are no global variables. The entry point of a Cucpp compiled binary is the `main` computetion.
+A Cucpp program is a collection of computations. There are no global variables. The entry point of a Cucpp compiled binary is the `main` computation.
 
 ### 2. Computetion Definitions (`compute`)
-Computetions are the primary abstraction block. 
+Computations are the primary abstraction block. 
 *   **Syntax:** `compute <name>(<arguments>) { <body> }`
-*   Computetions can take arguments and must return a value. 
+*   Computations can take arguments and must return a value. 
 *   **Example:**
     ```c
     compute z(a) {
@@ -45,7 +45,7 @@ Variables are bound to expressions using the `=` operator.
 ### 4. Control Flow (`if` / `ifelse`)
 Cucpp branches logic based on conditions.
 *   **Syntax:** `if (<condition>) { <body> }` or `ifelse (<condition>) { <body> }`
-*   No parentheses are strictly strictly required for the body unless utilizing multiple statements, but braces `{ }` and indentation govern the scoped body.
+*   No parentheses are strictly required for the body unless utilizing multiple statements, but braces `{ }` and indentation govern the scoped body.
 *   **Example:**
     ```c
     if (x > 0)
@@ -54,7 +54,7 @@ Cucpp branches logic based on conditions.
 
 ### 5. Iteration (Recursion)
 `while`, `for`, and `loop` iteration blocks are parsed but actively discouraged in pure-SSA generated representations. 
-*   **Best Practice:** Use tail-recursive computetions to represent iterative loops. LLVM natively optimizes tail-recursion back into pure SSA loop (`phi` nodes) without memory overhead.
+*   **Best Practice:** Use tail-recursive computations to represent iterative loops. LLVM natively optimizes tail-recursion back into pure SSA loop (`phi` nodes) without memory overhead.
 *   **Example:**
     ```c
     compute loop(x) {
@@ -65,16 +65,16 @@ Cucpp branches logic based on conditions.
     ```
 
 ### 6. Expressions & Computetion Calls
-Variables can be passed to computetions. The tokenizer parses any string matching the format `name(args)` as a `compute_call` natively.
+Variables can be passed to computations. The tokenizer parses any string matching the format `name(args)` as a `compute_call` natively.
 *   **Syntax:** `var_name = compute_name(args)`
 *   **Example:** `x2 = loop(x1)`
 
-### 7. Built-in Computetions
+### 7. Built-in Computations
 Cucpp comes with statically linked built-ins that interact with the C standard library.
 *   `print(x)`: Outputs an integer followed by a newline (internally maps to `printf("%d\n", x)`).
 
 ### 8. Return Statements (`return`)
-Returns a value from the current computetion block.
+Returns a value from the current computation block.
 *   **Syntax:** `return <expression>`
 *   **Example:** `return x3`
 
