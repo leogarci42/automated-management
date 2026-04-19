@@ -140,14 +140,15 @@ void generate_llvm_ir(t_token *ast, const char *outfile) {
     
     t_token *curr = ast;
     while (curr) {
-        if (curr->type == compute) {
+        if (curr->type == compute)
+		{
             reg_count = 0;
-            if (curr->context) {
+            if (curr->context)
+			{
                 strcpy(current_arg, curr->context);
                 current_arg[strcspn(current_arg, "\r\n ")] = 0;
-            } else {
+            } else
                 current_arg[0] = '\0';
-            }
             
             if (strlen(current_arg) > 0) {
                 fprintf(f, "define i32 @%s(i32 %%%s_arg) {\n", curr->name, current_arg);

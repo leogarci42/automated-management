@@ -1,60 +1,20 @@
-# Cucpp Language Documentation
+# Cucpp Language Features
 
-## Overview
-Cucpp is a minimal, custom Static Single Assignment (SSA) friendly language that compiles directly down to LLVM IR, avoiding memory allocations and stack operations wherever possible. 
-
-This document outlines the core features of the language and the recent improvements to the compiler pipeline.
-
-## Language Syntax & Features
-
-### 1. `compute` blocks (formerly `func`)
-The primary abstraction unit in Cucpp is the `compute` block. 
-These are equivalent to functions in C. They take arguments, execute a block of code, and return an evaluated result.
-
-**Syntax:**
-```c
-compute loop_example(x) {
-    // Body code here
-    return x
-}
-```
-
-### 2. Variables & Scoping
-Variables are immutable. As Cucpp compiles down to pure LLVM IR, variable re-assignments are not structurally supported by standard SSA semantics. Shadowing variable names (e.g. `x1`, `x2`, `x3`) is the proper way to handle successive evaluation steps. The compiler tracks variable bindings and evaluates them mathematically directly into LLVM `%` registers.
-
-**Syntax:**
-```c
-x1 = 12
-x2 = x1 - 1
-```
-
-*(Note: Simple math operations like `+`, `-`, `*` are natively supported).*
-
-### 3. Control Flow (`if` / `ifelse`)
-Basic branching logic runs recursively or implicitly into successive evaluations.
-
-**Syntax:**
-```c
-if (x > 0)
-    return loop(x - 1)
-```
-
-### 4. Function Calls (`compute_call`)
-Executing another compute block or passing standard definitions operates natively on variable assignments or inside `return` tokens.
-
-**Syntax:**
-```c
-a = z(x3)             // Store into variable `a`
-return loop(x - 1)    // Tail recurse or function return evaluation
-print(x3)             // Call native I/O routines
-```
-
-## Advanced Codegen Pipeline
-Historically, the `cucpp` codegen hardcoded specific string permutations (like exact token matches for `x2 = loop(x1)`). 
-The compiler now implements a **generic parser-driven LLVM code generator**!
-
-**Codegen Features:**
-- **Dynamic Variable Binding**: Any variable `var` translates iteratively into LLVM instructions (ex: `%var`). Variables matching compute arguments translate reliably without shadowing clashing (e.g. `i32 %x_arg`).
-- **Dynamic Expression Evaluation**: The LLVM string generation is now built off of standard C String Formats (`sscanf()`). Tokens like statement definitions are split automatically into `Left-hand = Right-hand1 Operator Right-hand2`.
-- **Dynamic Branch Parsing**: Conditional blocks like `x > 0` are evaluated character-by-character into `icmp` evaluation flags seamlessly dynamically.
-- **Embedded `printf` execution**: Support for external built-ins is completely preserved and scalable inside the modular IR design space.
+- `compute` (functions) --> implemented
+- function parameters --> implemented
+- `return` --> implemented
+- variables / assignments (`x = 12`) --> implemented
+- variable shadowing (`x2 = x1 - 1`) --> implemented
+- `if` / `ifelse` --> implemented
+- math subtraction (`-`) and addition (`+`) --> implemented
+- math multiplication (`*`) --> implemented
+- comparisons (`>`, `<`, `==`) --> implemented
+- `print(var)` built-in --> implemented
+- `while` loops --> not implemented (Explanation: To loop, you must use tail-recursion. Create a `compute` block that takes the loop state as parameters, and returns a call to itself with updated parameters until a base `if` condition returns the final value).
+- `for` loops --> not implemented (Explanation: Use tail-recursion just like you would for a `while` loop).
+- `break` --> not implemented (Explanation: Since there are no standard loop constructs, use `return` to exit a recursive `compute` block early).
+- `continue` --> not implemented (Explanation: Instead of `continue`, call the recursive `compute` block again with the next iteration's arguments).
+- complex math (`/`, `%`, bitwise) --> not implemented
+- logical conditions (`&&`, `||`, `!`) --> not implemented
+- explicit data types (`bool`, `char`, `string`, floats) --> not implemented (All variables are 32-bit integers)
+- arrays, structs, pointers --> not implemented (Omitted to preserve strict SSA semantics without memory allocations)
