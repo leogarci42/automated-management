@@ -7,7 +7,7 @@ void print_token(t_token *token, int depth)
     for (int i = 0; i < depth; i++)
         printf("  ");
         
-    if (token->type == func)
+    if (token->type == compute)
     {
         printf("[\033[36mFUNC\033[0m] \033[32m%s\033[0m (Context: \033[33m%s\033[0m)\n", token->name ? token->name : "anon", token->context ? token->context : "none");
     }
@@ -24,7 +24,7 @@ void print_token(t_token *token, int depth)
         printf("[\033[36mINCREMENT\033[0m] \033[35m%s\033[0m\n", token->context ? token->context : "none");
     else if (token->type == decrement)
         printf("[\033[36mDECREMENT\033[0m] \033[35m%s\033[0m\n", token->context ? token->context : "none");
-    else if (token->type == func_call)
+    else if (token->type == compute_call)
         printf("[\033[36mFUNC_CALL\033[0m] \033[35m%s\033[0m\n", token->context ? token->context : "none");
     else if (token->type == ret_statement)
         printf("[\033[36mRETURN\033[0m] \033[35m%s\033[0m\n", token->context ? token->context : "none");
