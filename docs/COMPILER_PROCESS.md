@@ -37,7 +37,7 @@ Native machine code (x86, ARM, Apple Silicon) is highly complex and platform-dep
    Loops and If-Statements are converted into "Basic Blocks" ending in Branch (`br`) instructions. 
    To evaluate `while(x > 0)`, we compare the condition (`icmp sgt`) and branch (`br`) conditionally to either the loop body label or the loop end label.
 
-Our `generate_llvm_ir` function steps node-by-node through your AST and manually prints out the specific textual LLVM instructions.
+Our `generate_llvm_ir_cpu` function steps node-by-node through your AST and manually prints out the specific textual LLVM instructions.
 
 ## 3. The Backend: Assembly and Linking (`clang`)
 Once our compiler writes the `output.ll` file, that file is technically valid LLVM language, but it's not a runnable binary. It's just text.
