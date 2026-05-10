@@ -1,0 +1,49 @@
+name: Compiler CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential libreadline-dev
+
+      - name: Build cucpp
+        run: |
+          make re
+      - name: Run Integration Tests
+        run: |
+          chmod +x ./cucpp
+          EXIT_CODE=0
+          
+          echo "Running tests in ./example..."
+          
+          for test_file in ./example/*; do
+            echo "Testing $test_file..."
+            # Run compiler and capture output
+            # We check if the command fails OR if it produces any stderr output (warnings)
+            if ! ./cucpp "$test_file" 2>warnings.txt; then
+              echo "Error: Compilation failed for $test_file"
+              cat warnings.txt
+              EXIT_CODE=1
+            elif [ -s warnings.txt ]; then
+              echo "Error: Warnings detected in $test_file (Banned!)"
+              cat warnings.txt
+              EXIT_CODE=1
+            else
+              echo "$test_file passed."
+            fi
+          done
+          
+          exit $EXIT_CODE

@@ -9,7 +9,8 @@ void print_token(t_token *token, int depth)
         
     if (token->type == compute)
     {
-        printf("[\033[36mFUNC\033[0m] \033[32m%s\033[0m (Context: \033[33m%s\033[0m)\n", token->name ? token->name : "anon", token->context ? token->context : "none");
+        const char *target = token->exec_target == EXEC_GPU ? "gpu" : "cpu";
+        printf("[\033[36mFUNC\033[0m] \033[32m%s\033[0m (Context: \033[33m%s\033[0m, Target: \033[35m%s\033[0m)\n", token->name ? token->name : "anon", token->context ? token->context : "none", target);
     }
     else if (token->type == ifelse)
         printf("[\033[36mIF/ELSE\033[0m] (Condition: \033[33m%s\033[0m)\n", token->context ? token->context : "none");

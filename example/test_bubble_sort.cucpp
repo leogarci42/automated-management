@@ -1,0 +1,27 @@
+@cpu
+compute main()
+{
+	int arr[5] = [5, 1, 4, 2, 8]
+	i = 0
+	while (i < 5)
+	{
+		j = 0
+		while (j < 4)
+		{
+			j1 = j + 1
+			if (arr[j] > arr[j1])
+			{
+				tmp = arr[j]
+				arr[j] = arr[j1]
+				arr[j1] = tmp
+			}
+			j++
+		}
+		i++
+	}
+	print(arr[0])
+	print(arr[1])
+	print(arr[2])
+	print(arr[3])
+	print(arr[4])
+}

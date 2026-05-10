@@ -2,18 +2,35 @@ CC = cc
 NAME = cucpp
 CFLAGS = -Wall -Wextra -I./includes/ -g3 -Wno-unused-command-line-argument
 LDFLAGS = -lreadline
+
+# check if nixOS
+ifneq ($(wildcard /run/current-system/sw/lib/),)
+    CFLAGS += -I/run/current-system/sw/include
+    LDFLAGS += -L/run/current-system/sw/lib
+endif
 OBJ_DIR = obj
 SRC =	./src/main.c \
 		./src/helpers/error.c \
-		./src/dummy_check.c \
-		./src/tokenizer.c \
 		./src/helpers/free_token.c \
 		./src/helpers/print_AST.c \
 		./src/helpers/useful.c \
 		./src/fd_tracker.c \
-        ./src/codegen/cpu-based/codegen.c \
-        ./src/codegen/cpu-based/node_generator.c \
-		./src/codegen/cpu-based/helpers/codegen_cpu_helpers.c
+		./src/checkers/dummy_check_driver.c \
+		./src/checkers/dummy_check_io.c \
+		./src/checkers/dummy_check_symbols.c \
+		./src/checkers/dummy_check_targets.c \
+		./src/tokenizer/tokenizer_dispatch.c \
+		./src/tokenizer/tokenizer_lex.c \
+		./src/tokenizer/tokenizer_nodes.c \
+		./src/tokenizer/tokenizer_state.c \
+		./src/codegen/cpu-based/codegen.c \
+		./src/codegen/cpu-based/node_compute.c \
+		./src/codegen/cpu-based/node_control.c \
+		./src/codegen/cpu-based/node_statement.c \
+		./src/codegen/cpu-based/helpers/arrays.c \
+		./src/codegen/cpu-based/helpers/value_parse.c \
+		./src/codegen/cpu-based/helpers/versioning.c \
+		./src/codegen/gpu-based/codegen.c
 
 OBJ = $(addprefix $(OBJ_DIR)/, $(SRC:.c=.o))
 DIRS = $(sort $(dir $(OBJ)))

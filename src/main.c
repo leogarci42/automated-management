@@ -1,6 +1,8 @@
 #include "codegen.h"
 #include "parser.h"
 
+extern void free_g();
+
 t_error *err = NULL;
 
 static void print_help() {
@@ -61,4 +63,5 @@ int main(int ac, char **av)
     
     free(err);
     return 0;
+    __attribute__((destructor));
 }
