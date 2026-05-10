@@ -21,7 +21,7 @@ jobs:
 
       - name: Build cucpp
         run: |
-          make CFLAGS="-Wall -Wextra -Werror" CXXFLAGS="-Wall -Wextra -Werror"
+          make re
           
       - name: Run Integration Tests
         run: |
