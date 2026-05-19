@@ -2,6 +2,12 @@ CC = cc
 NAME = cucpp
 CFLAGS = -Wall -Wextra -I./includes/ -g3 -Wno-unused-command-line-argument
 LDFLAGS = -lreadline
+
+# check if nixOS
+ifneq ($(wildcard /run/current-system/sw/lib/),)
+    CFLAGS += -I/run/current-system/sw/include
+    LDFLAGS += -L/run/current-system/sw/lib
+endif
 OBJ_DIR = obj
 SRC =	./src/main.c \
 		./src/helpers/error.c \

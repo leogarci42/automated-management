@@ -21,6 +21,8 @@ void generate_node(FILE *f, t_token *node)
 		generate_llvm_ifelse(node, f, &if_count);
 	else if (node->type == compute_call)
 		generate_llvm_compute_call(node, f, &reg_count);
+    else if (node->type == loop)
+        generate_llvm_loop(node, f, &reg_count);
 	generate_node(f, node->next);
 }
 
