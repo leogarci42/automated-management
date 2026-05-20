@@ -1,0 +1,11 @@
+compute main()
+{
+	x1 = 12
+	x2 = 16
+	while (x2 >= x1)
+	{
+		print(x2)
+		x2--
+	}
+	print(x2)
+}

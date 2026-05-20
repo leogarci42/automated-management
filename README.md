@@ -9,7 +9,7 @@
 ```
 
 ## DESCRIPTION
-Cucpp is built to enforce an SSA-friendly paradigm. It removes mutable state (re-assignment) and standard loop constructs in favor of variable shadowing and tail-recursion. This ensures a 1-to-1 mapping with LLVM's Intermediate Representation (IR), eliminating the need for stack allocations (`alloca`) and memory store/loads entirely.
+Cucpp is built to enforce an SSA-friendly paradigm. Variable updates are lowered into SSA versions during code generation, and structured loops are emitted with explicit `phi` nodes. This keeps a 1-to-1 mapping with LLVM's Intermediate Representation (IR), eliminating the need for stack allocations (`alloca`) and memory store/loads entirely.
 
 All integers in Cucpp are treated as 32-bit signed integers (`i32` in LLVM).
 
@@ -32,9 +32,9 @@ Computations are the primary abstraction block.
     }
     ```
 
-### 3. Variables and Immutable Bindings
+### 3. Variables and SSA Bindings
 Variables are bound to expressions using the `=` operator.
-*   **Mutation is avoided:** To abide by strict SSA form, a variable should not be re-assigned. Instead, compute a new variable (Shadowing).
+*   **SSA-friendly:** Re-assigning a name creates a new SSA version in the generated IR. Shadowing with new names is still recommended for clarity.
 *   **Syntax:** `<name> = <expression>`
 *   **Example:**
     ```c
@@ -52,28 +52,40 @@ Cucpp branches logic based on conditions.
         return loop(x - 1)
     ```
 
-### 5. Iteration (Recursion)
-`while`, `for`, and `loop` iteration blocks are parsed but actively discouraged in pure-SSA generated representations. 
-*   **Best Practice:** Use tail-recursive computations to represent iterative loops. LLVM natively optimizes tail-recursion back into pure SSA loop (`phi` nodes) without memory overhead.
+### 5. Arrays
+Fixed-size arrays are supported and passed by reference.
+*   **Declaration:** `int arr[5]` or `char letters[3]`
+*   **Literal init:** `arr = [1, 2, 3]` or `char letters[3] = ['a', 'b', 'c']`
+*   **Indexing:** `x = arr[i]` and `arr[i] = x`
+*   **Bounds checks:** Every access is checked at runtime and aborts on out-of-bounds.
+
+### 6. Iteration (`while` / `loop`)
+`while` and `loop` blocks are supported and compiled into SSA-friendly `phi` nodes.
+*   **Important:** The loop condition must depend on a variable that is updated inside the body (e.g., `x2--`), or the loop will not terminate.
+*   **Best Practice:** Use tail-recursive computations for complex loops or when you want explicit SSA transitions.
 *   **Example:**
     ```c
-    compute loop(x) {
-        if (x > 0)
-            return loop(x - 1)
-        return x
+    compute main() {
+        x1 = 12
+        x2 = 16
+        while (x2 > x1) {
+            print(x2)
+            x2--
+        }
+        print(x2)
     }
     ```
 
-### 6. Expressions & Computetion Calls
+### 7. Expressions & Computetion Calls
 Variables can be passed to computations. The tokenizer parses any string matching the format `name(args)` as a `compute_call` natively.
 *   **Syntax:** `var_name = compute_name(args)`
 *   **Example:** `x2 = loop(x1)`
 
-### 7. Built-in Computations
+### 8. Built-in Computations
 Cucpp comes with statically linked built-ins that interact with the C standard library.
 *   `print(x)`: Outputs an integer followed by a newline (internally maps to `printf("%d\n", x)`).
 
-### 8. Return Statements (`return`)
+### 9. Return Statements (`return`)
 Returns a value from the current computation block.
 *   **Syntax:** `return <expression>`
 *   **Example:** `return x3`

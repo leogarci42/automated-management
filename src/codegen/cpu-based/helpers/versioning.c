@@ -5,7 +5,6 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-
 typedef struct s_var_version {
 	char *name;
 	char *ssa_name;
@@ -58,20 +57,20 @@ void set_var_version(const char *name, const char *ssa_name)
 
 void to_llvm_val(const char *var, char *out)
 {
-    int is_num = 1;
-    for (int i = 0; var[i]; i++)
+	int is_num = 1;
+	for (int i = 0; var[i]; i++)
 	{
-        if (i == 0 && var[i] == '-')
+		if (i == 0 && var[i] == '-')
 			continue;
-        if (var[i] < '0' || var[i] > '9')
+		if (var[i] < '0' || var[i] > '9')
 		{
-            is_num = 0;
+			is_num = 0;
 			break;
-        }
-    }
-    if (is_num)
+		}
+	}
+	if (is_num)
 	{
-        sprintf(out, "%s", var);
+		sprintf(out, "%s", var);
 		return;
 	}
 	const char *ver = get_var_version(var);
@@ -81,17 +80,4 @@ void to_llvm_val(const char *var, char *out)
 		sprintf(out, "%%%s_arg", var);
 	else
 		sprintf(out, "%%%s", var);
-}
-
-char *trim_space(char *str)
-{
-	while(isspace(*str))
-		str++;
-	char *end = str + strlen(str) - 1;
-	while(end > str && isspace(*end))
-	{
-		*end = '\0';
-		end--;
-	}
-	return str;
 }
