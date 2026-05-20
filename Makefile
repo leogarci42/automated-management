@@ -15,10 +15,10 @@ SRC =	./src/main.c \
 		./src/helpers/print_AST.c \
 		./src/helpers/useful.c \
 		./src/fd_tracker.c \
-		./src/dummy_check/dummy_check_driver.c \
-		./src/dummy_check/dummy_check_io.c \
-		./src/dummy_check/dummy_check_symbols.c \
-		./src/dummy_check/dummy_check_targets.c \
+		./src/checkers/dummy_check_driver.c \
+		./src/checkers/dummy_check_io.c \
+		./src/checkers/dummy_check_symbols.c \
+		./src/checkers/dummy_check_targets.c \
 		./src/tokenizer/tokenizer_dispatch.c \
 		./src/tokenizer/tokenizer_lex.c \
 		./src/tokenizer/tokenizer_nodes.c \

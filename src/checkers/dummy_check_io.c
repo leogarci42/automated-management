@@ -1,5 +1,5 @@
-#include "dummy_check_internal.h"
 #include <fcntl.h>
+#include "dummy_check_internal.h"
 
 bool check_file_extensions(char *filename)
 {
