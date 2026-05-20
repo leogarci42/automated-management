@@ -14,7 +14,7 @@ void generate_node(FILE *f, t_token *node)
 	if (!node)
 		return;
 	if (node->type == statement)
-		generate_llvm_statement(node, f);
+		generate_llvm_statement(node, f, &reg_count);
 	else if (node->type == ret_statement)
 		generate_llvm_ret_statement(node, f, &reg_count);
 	else if (node->type == ifelse)
@@ -23,6 +23,7 @@ void generate_node(FILE *f, t_token *node)
 		generate_llvm_compute_call(node, f, &reg_count);
     else if (node->type == loop)
         generate_llvm_loop(node, f, &reg_count);
+
 	generate_node(f, node->next);
 }
 
@@ -40,9 +41,10 @@ void generate_llvm_ir_cpu(t_token *ast, const char *outfile)
 	t_token *curr = ast;
 	while (curr)
 	{
-		if (curr->type == compute)
+		if (curr->type == compute && curr->exec_target == EXEC_CPU)
 		{
 			reg_count = 0;
+			reset_var_versions();
 			if (curr->context)
 			{
 				strcpy(current_arg, curr->context);

@@ -43,6 +43,43 @@ static char* get_context(char *buff, int *i)
 
 static t_token* get_token_data(char *buff, int *i);
 
+static t_exec_target pending_target = EXEC_CPU;
+
+static bool parse_exec_annotation(char *buff, int *i)
+{
+	int start = *i;
+	if (buff[*i] != '@')
+		return false;
+	(*i)++;
+	int name_start = *i;
+	while (buff[*i] && isprint(buff[*i]) && buff[*i] != ' ' && buff[*i] != '\t' && buff[*i] != '\n' && buff[*i] != '\r')
+		(*i)++;
+	int len = *i - name_start;
+	if (len <= 0)
+	{
+		err->valid = false;
+		err->err_str = strdup("invalid execution annotation");
+		return true;
+	}
+	if (len == 3 && strncmp(buff + name_start, "gpu", 3) == 0)
+		pending_target = EXEC_GPU;
+	else if (len == 3 && strncmp(buff + name_start, "cpu", 3) == 0)
+		pending_target = EXEC_CPU;
+	else
+	{
+		err->valid = false;
+		err->err_str = strdup("unknown execution annotation");
+		return true;
+	}
+	while (buff[*i] && buff[*i] != '\n')
+		(*i)++;
+	if (buff[*i] == '\n')
+		(*i)++;
+	if (start == *i)
+		(*i)++;
+	return true;
+}
+
 static t_token* parse_body(char *buff, int *i)
 {
 	t_token *body_head = NULL;
@@ -95,6 +132,8 @@ static t_token* set_compute_token(char *to_tokenize, int *global_i)
 	if (!token)
 		return (NULL);
 	token->type = compute;
+	token->exec_target = pending_target;
+	pending_target = EXEC_CPU;
     
 	int i = 0;
 	skip_whitespace(to_tokenize, &i);
@@ -129,6 +168,7 @@ static t_token* set_generic_token(char *to_tokenize, int *global_i, t_token_type
 	if (!token)
 		return (NULL);
 	token->type = type;
+	token->exec_target = EXEC_CPU;
     
 	int i = 0;
 	skip_whitespace(to_tokenize, &i);
@@ -155,6 +195,7 @@ static t_token* get_statement_token(char *buff, int *i)
 	t_token *token = (t_token *)calloc(1, sizeof(t_token));
 	if (!token) return (NULL);
 	token->type = statement;
+	token->exec_target = EXEC_CPU;
 	
 	int start = *i;
 	while (buff[*i] && buff[*i] != '\n' && buff[*i] != '}' && buff[*i] != '{')
@@ -235,6 +276,17 @@ bool generate_token(char *buff, t_token **out_token)
     while (buff[i]) {
         skip_whitespace(buff, &i);
         if (buff[i] == '\0') break;
+		if (buff[i] == '@') {
+			if (!parse_exec_annotation(buff, &i))
+			{
+				err->valid = false;
+				err->err_str = strdup("invalid execution annotation");
+				return false;
+			}
+			if (!err->valid)
+				return false;
+			continue;
+		}
         
         t_token *new_token = get_token_data(buff, &i);
         if (!new_token) {

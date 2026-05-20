@@ -20,8 +20,14 @@ typedef enum e_token_type {
 	ret_statement,
 } t_token_type;
 
+typedef enum e_exec_target {
+	EXEC_CPU,
+	EXEC_GPU,
+} t_exec_target;
+
 typedef struct s_token {
 	t_token_type type;
+	t_exec_target exec_target;
 	char *name;
 	char *context;
 	t_var_type var_type;
