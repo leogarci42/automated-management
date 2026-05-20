@@ -292,6 +292,7 @@ void dummy_parse(char *filename, bool emit_llvm, char *out_bin)
                 if (!llc_cmd || llc_cmd[0] == '\0')
                     llc_cmd = "llc-12";
                 bool is_ld = false;
+                const char *lld_cmd = pick_linker_cmd(&is_ld);
                 char cmd[512];
                 if (strstr(triple, "spir64") != NULL)
                 {
@@ -328,17 +329,25 @@ void dummy_parse(char *filename, bool emit_llvm, char *out_bin)
                     snprintf(cmd, sizeof(cmd), "%s -march=amdgcn -filetype=obj -mtriple=%s output_gpu.ll -o output_gpu.tmp.o", llc_cmd, triple);
                     int ret = system(cmd);
                     if (ret == 0) {
-                        snprintf(cmd, sizeof(cmd), "%s -r -o output_gpu.o output_gpu.tmp.o", lld_cmd);
-                        ret = system(cmd);
-                        if (ret == 0) {
-                            printf("[SUCCESS] Generated GPU object 'output_gpu.o' (triple: %s)\n", triple);
-                            remove("output_gpu.tmp.o");
+                        if (!lld_cmd) {
+                            rename("output_gpu.tmp.o", "output_gpu.o");
+                            printf("[WARN] GPU linker not available. Kept GPU object as 'output_gpu.o' without linking.\n");
                             if (!emit_llvm) {
                                 remove("output_gpu.ll");
                             }
                         } else {
-                            printf("\n[ERROR] Failed to link GPU object with lld.\n");
-                            printf("[HINT] Run with --emit-llvm and check the generated 'output_gpu.ll' file.\n");
+                            snprintf(cmd, sizeof(cmd), "%s -r -o output_gpu.o output_gpu.tmp.o", lld_cmd);
+                            ret = system(cmd);
+                            if (ret == 0) {
+                                printf("[SUCCESS] Generated GPU object 'output_gpu.o' (triple: %s)\n", triple);
+                                remove("output_gpu.tmp.o");
+                                if (!emit_llvm) {
+                                    remove("output_gpu.ll");
+                                }
+                            } else {
+                                printf("\n[ERROR] Failed to link GPU object with lld.\n");
+                                printf("[HINT] Run with --emit-llvm and check the generated 'output_gpu.ll' file.\n");
+                            }
                         }
                     } else {
                         printf("\n[ERROR] Failed to compile GPU LLVM IR with llc.\n");
