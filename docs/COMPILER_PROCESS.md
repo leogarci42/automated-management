@@ -15,7 +15,7 @@ Our AST output looks something like this:
 ```
 
 ## 2. The Middle-end: LLVM Intermediate Representation (IR) 
-Native machine code (x86, ARM, Apple Silicon) is highly complex and platform-dependent. LLVM provides an "Intermediate Representation" (IR) which looks like a cross between Assembly and C. This is what our `codegen.c` writes out to `output.ll`.
+Native machine code (x86, ARM, Apple Silicon, ptx) is highly complex and platform-dependent. LLVM provides an "Intermediate Representation" (IR) which looks like a cross between Assembly and C. This is what our `codegen.c` writes out to `output.ll`.
 
 ### The Core Concepts of LLVM IR:
 1. **Infinite "Virtual" Registers (`%0`, `%1`, `%a`)**:
@@ -50,9 +50,14 @@ We run `clang output.ll -o program_bin` inside the compiler (`system()` call) to
 ---
 
 ## What's Next? (Moving beyond a "toy")
-Currently, `codegen.c` uses hard-coded string comparisons like `strncmp(node->context, "x = 12", 6) == 0` to generate the IR. 
+Currently, only the CPU version have been dev, so:
 
-To convert this into a **true** generic compiler, we need to:
-1. **Properly Parse Statements**: `x = 12` shouldn't be read as a raw statement string. The tokenizer should produce an `[ASSIGNMENT]` node where `LHS = "x"` and `RHS = "12"`.
-2. **Implement a Variable Symbol Table**: When `codegen.c` sees `x = 12`, it should check if `%x` was already `alloca`'d. If not, allocate it. If yes, just `store` to it.
-3. **Evaluate Generic Expressions**: A recursive expression evaluator in `codegen.c` that evaluates the `RHS` completely (e.g., `12` or `y * 2 + z(a)`), assigns it a virtual register, and then passes that register back up the tree.
+#### GPU-based optimization:
+* GPU-friendly generation, because we could use my already generated llvm for cpu and run it on cpu, but if i don't generate clear llvm for the target what is the point of it?
+
+#### implement advanced optimzations option for CPU:
+* implement various new features in code / at llvm generation like native pthreads, mutexes and atomic, SIMD
+
+#### Algorithms to auto-determine what should run CPU / GPU and benchmarks
+
+* by far the hardest, but try to determine and split the runtime through CPU / GPU, and make it efficient on benchmarks!

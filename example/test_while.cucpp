@@ -1,3 +1,4 @@
+@cpu
 compute main()
 {
 	x1 = 12

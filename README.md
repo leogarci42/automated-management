@@ -1,26 +1,26 @@
-# Cucpp Language Reference Manual (v1.0)
+# CUCPP Language Reference Manual (v1.0)
 
 ## NAME
-**Cucpp** — A minimalist, Static Single Assignment (SSA) friendly, purely computational programming language compiling to LLVM IR.
+**CUCPP** — A minimalist, Static Single Assignment (SSA) friendly, purely computational programming language compiling to LLVM IR.
 
 ## SYNOPSIS
 ```console
-./cucpp <source_file.cucpp> [--emit-llvm]
+./cucpp [--emit-llvm] [-o <exec_name>] <source_file.cucpp>
 ```
 
 ## DESCRIPTION
-Cucpp is built to enforce an SSA-friendly paradigm. Variable updates are lowered into SSA versions during code generation, and structured loops are emitted with explicit `phi` nodes. This keeps a 1-to-1 mapping with LLVM's Intermediate Representation (IR), eliminating the need for stack allocations (`alloca`) and memory store/loads entirely.
+cucpp is built to enforce an SSA-friendly paradigm. Variable updates are lowered into SSA versions during code generation, and structured loops are emitted with explicit `phi` nodes. This keeps a 1-to-1 mapping with LLVM's Intermediate Representation (IR), eliminating the need for stack allocations (`alloca`) and memory store/loads entirely.
 
-All integers in Cucpp are treated as 32-bit signed integers (`i32` in LLVM).
+All integers in cucpp are treated as 32-bit signed integers (`i32` in LLVM).
 
 ---
 
 ## LANGUAGE SPECIFICATION
 
 ### 1. Program Structure
-A Cucpp program is a collection of computations. There are no global variables. The entry point of a Cucpp compiled binary is the `main` computation.
+A cucpp program is a collection of computations. There are no global variables. The entry point of a cucpp compiled binary is the `main` computation.
 
-### 2. Computetion Definitions (`compute`)
+### 2. Computation Definitions (`compute`)
 Computations are the primary abstraction block. 
 *   **Syntax:** `compute <name>(<arguments>) { <body> }`
 *   Computations can take arguments and must return a value. 
@@ -43,7 +43,7 @@ Variables are bound to expressions using the `=` operator.
     ```
 
 ### 4. Control Flow (`if` / `ifelse`)
-Cucpp branches logic based on conditions.
+cucpp branches logic based on conditions.
 *   **Syntax:** `if (<condition>) { <body> }` or `ifelse (<condition>) { <body> }`
 *   No parentheses are strictly required for the body unless utilizing multiple statements, but braces `{ }` and indentation govern the scoped body.
 *   **Example:**
@@ -82,7 +82,7 @@ Variables can be passed to computations. The tokenizer parses any string matchin
 *   **Example:** `x2 = loop(x1)`
 
 ### 8. Built-in Computations
-Cucpp comes with statically linked built-ins that interact with the C standard library.
+cucpp comes with statically linked built-ins that interact with the C standard library.
 *   `print(x)`: Outputs an integer followed by a newline (internally maps to `printf("%d\n", x)`).
 
 ### 9. Return Statements (`return`)
