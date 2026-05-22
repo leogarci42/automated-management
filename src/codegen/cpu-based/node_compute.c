@@ -24,29 +24,33 @@ static void parse_inc_dec_target(const char *ctx, char *out, size_t out_sz)
 
 void generate_llvm_compute_call(t_token *node, FILE *f, int *reg_count)
 {
-	if (strncmp(node->context, "print(", 6) == 0)
-	{
-		char p_arg[64];
-		sscanf(node->context, "print(%63[^)])", p_arg);
-		char ll_p[64];
-		to_llvm_val_ex(f, reg_count, p_arg, ll_p);
-		fprintf(f, "  %%print_res%d = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.str, i64 0, i64 0), i32 %s)\n", *reg_count++, ll_p);
-	}
-	else
-	{
-		char dst[64], func[64], arg[64];
-		int n = sscanf(node->context, "%s = %63[^(](%63[^)])", dst, func, arg);
-		if (n == 3)
-		{
-			char ll_dst[64], ll_arg[64];
-			char dst_ssa[96];
-			snprintf(dst_ssa, sizeof(dst_ssa), "%s_v%d", dst, (*reg_count)++);
-			set_var_version(dst, dst_ssa);
-			snprintf(ll_dst, sizeof(ll_dst), "%%%s", dst_ssa);
-			to_llvm_val_ex(f, reg_count, arg, ll_arg);
-			fprintf(f, "  %s = call i32 @%s(i32 %s)\n", ll_dst, trim_space(func), ll_arg);
-		}
-	}
+    if (strncmp(node->context, "print(", 6) == 0)
+    {
+        char p_arg[64];
+        sscanf(node->context, "print(%63[^)])", p_arg);
+        char ll_p[64];
+        to_llvm_val_ex(f, reg_count, p_arg, ll_p);
+        fprintf(f, "  %%print_res%d = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.str, i64 0, i64 0), i32 %s)\n", *reg_count++, ll_p);
+    }
+    else
+    {
+        char dst[64], func[64], arg[64];
+        int n = sscanf(node->context, "%s = %63[^(](%63[^)])", dst, func, arg);
+        if (n == 3)
+        {
+            char ll_arg[64];
+            char dst_ssa[96];
+            memset(dst_ssa, 0, sizeof(dst_ssa));
+            snprintf(dst_ssa, sizeof(dst_ssa), "%s", dst);
+            set_var_version(dst, dst_ssa); 
+            to_llvm_val_ex(f, reg_count, arg, ll_arg);
+            if (dst_ssa[0] == '%') {
+                fprintf(f, "  %s = call i32 @%s(i32 %s)\n", dst_ssa, trim_space(func), ll_arg);
+            } else {
+                fprintf(f, "  %%%s = call i32 @%s(i32 %s)\n", dst_ssa, trim_space(func), ll_arg);
+            }
+        }
+    }
 }
 
 void generate_llvm_ret_statement(t_token *node, FILE *f, int *reg_count)
@@ -92,7 +96,7 @@ void generate_llvm_inc_dec(t_token *node, FILE *f, int *reg_count, bool is_incre
 	char ll_old[64];
 	to_llvm_val_ex(f, reg_count, name, ll_old);
 	char dst_ssa[96];
-	snprintf(dst_ssa, sizeof(dst_ssa), "%s_v%d", name, (*reg_count)++);
+	snprintf(dst_ssa, sizeof(dst_ssa), "%s", name);
 	set_var_version(name, dst_ssa);
 	const char *op = is_increment ? "add nsw" : "sub nsw";
 	fprintf(f, "  %%%s = %s i32 %s, 1\n", dst_ssa, op, ll_old);

@@ -81,3 +81,22 @@ void to_llvm_val(const char *var, char *out)
 	else
 		sprintf(out, "%%%s", var);
 }
+
+
+void __attribute__((destructor)) free_g();
+void free_g(void)
+{
+    t_var_version *current = g_versions;
+    
+    while (current != NULL)
+    {
+        t_var_version *next_node = current->next;
+        if (current->name)
+            free(current->name);
+        if (current->ssa_name)
+            free(current->ssa_name);
+        free(current);
+        current = next_node;
+    }
+    g_versions = NULL;
+}

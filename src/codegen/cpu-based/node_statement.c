@@ -362,7 +362,6 @@ void generate_llvm_statement(t_token *node, FILE *f, int *reg_count)
 		snprintf(dst_ssa, sizeof(dst_ssa), "%s_v%d", c1, (*reg_count)++);
 		set_var_version(c1, dst_ssa);
 		snprintf(ll_v1, sizeof(ll_v1), "%%%s", dst_ssa);
-
 		const char *op = "add";
 		if (strcmp(c3, "-") == 0)
 			op = "sub nsw";
@@ -379,5 +378,5 @@ void generate_llvm_statement(t_token *node, FILE *f, int *reg_count)
 		snprintf(ll_v1, sizeof(ll_v1), "%%%s", dst_ssa);
 		to_llvm_val_ex(f, reg_count, c2, ll_v2);
 		fprintf(f, "  %s = add i32 %s, 0\n", ll_v1, ll_v2);
-	}
+    }
 }
