@@ -1,4 +1,4 @@
-@cpu
+@gpu
 compute z(a)
 {
     a1 = a - 1

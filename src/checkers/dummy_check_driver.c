@@ -50,7 +50,7 @@ void dummy_parse(char *filename, bool emit_llvm, char *out_bin)
 				generate_llvm_ir_gpu(token, "output_gpu.ll", triple);
 				const char *llc_cmd = getenv("CUCPP_LLC");
 				if (!llc_cmd || llc_cmd[0] == '\0')
-					llc_cmd = "llc-12";
+					llc_cmd = "llc";
 				bool is_ld = false;
 				const char *lld_cmd = pick_linker_cmd(&is_ld);
 				char cmd[512];
