@@ -1,3 +1,6 @@
 cucpp
 
+./runtime/compile_commands.json
+./runtime/a.out
+a.out
 obj
