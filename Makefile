@@ -1,6 +1,6 @@
 CC = cc
 NAME = cucpp
-CFLAGS = -Wall -Wextra -I./includes/ -g3 -Wno-unused-command-line-argument
+CFLAGS = -Wall -Wextra -I./includes/ -g3 -Wno-unused-command-line-argument -fPIE
 LDFLAGS = -lreadline
 
 # check if nixOS
@@ -65,6 +65,11 @@ re: fclean all
 debug: CFLAGS += -g3 -DTRACK_FD -fsanitize=address,undefined -O0 --pedantic-errors -Wpedantic -fno-omit-frame-pointer -DTRACK_FD
 debug: re
 	
+
+test:
+	@./script/test_integration.sh
+	@rm -f a.out runtime_check test_runtime warnings.txt
+	@make --no-print-directory fclean
 
 .PHONY: all clean fclean re $(DIRS) rc 
 rc:
