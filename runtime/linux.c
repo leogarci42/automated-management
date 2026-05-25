@@ -46,11 +46,8 @@ static inline void init_memory_gpu_openCL()
             break;
     }
     free(platforms);
-    if (!device)
-    {
-        printf("No GPU device found.\n");
-        return;
-    }
+    if (!device) 
+        return ((void)printf("No GPU device found.\n"));
     char dname[256];
     clGetDeviceInfo(device, CL_DEVICE_NAME, sizeof(dname), dname, NULL);
     printf("Using GPU device: %s\n", dname);

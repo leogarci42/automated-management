@@ -1,6 +1,6 @@
 CC = cc
 NAME = cucpp
-CFLAGS = -Wall -Wextra -I./includes/ -g3 -Wno-unused-command-line-argument
+CFLAGS = -Wall -Wextra -I./includes/ -g3 -Wno-unused-command-line-argument -fPIE
 LDFLAGS = -lreadline
 
 # check if nixOS

@@ -25,7 +25,7 @@ void dummy_parse(char *filename, bool emit_llvm, char *out_bin)
 				generate_llvm_ir_cpu(token, "output.ll");
 
 				char cmd[512];
-				snprintf(cmd, sizeof(cmd), "clang -g -Wno-override-module output.ll -o %s", out_bin);
+				snprintf(cmd, sizeof(cmd), "clang -g -Wno-unused-command-line-argument -Wno-override-module output.ll -o %s", out_bin);
 				int ret = system(cmd);
 				if (ret == 0)
 				{
