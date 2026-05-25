@@ -101,24 +101,32 @@ static inline void init(uint8_t flags)
     //printf("Success\n");
 }
 
-//static void *allocate_gpu_openCL(size_t size, size_t align)__attribute__((always_inline));
-//static void *allocate_gpu_openCL(size_t size, size_t align)
-//{
+static void *allocate_gpu_openCL(size_t size, size_t align)__attribute__((always_inline));
+static inline void *allocate_gpu_openCL(size_t size, size_t align)
+{
+    //malloc equivalent for my runtime gpu (using openCL) mem
+    offset_gpu = (offset_gpu + align - 1) & ~(align - 1);
+    void *ptr = (char *)runtime_mem_gpu + offset_gpu;
+    offset_gpu += size;
+    return (ptr);
+}
 
-//}
-
-//static void *allocate_gpu(size_t size, size_t align)__attribute__((always_inline));
-//static void *allocate_gpu(size_t size, size_t align)
-//{
-    //return (allocate_gpu_openCL(size, align));
-//}
+static void *allocate_gpu(size_t size, size_t align)__attribute__((always_inline));
+static inline void *allocate_gpu(size_t size, size_t align)
+{
+    return (allocate_gpu_openCL(size, align));
+}
 
 void *cmalloc(size_t size, size_t align)
 {
-    //if (cpu)
+    uint8_t cpu_flags = 1;
+    uint8_t gpu_flags = 1;
+
+    if (cpu_flags)
         return (allocate_cpu(size, align));
-    //else if (gpu)
-        //return (allocate_gpu(size, align));
+    /*else*/ if (gpu_flags)
+        return (allocate_gpu(size, align));
+    return (NULL);
 }
 
 int main(int ac, char **av)
@@ -135,7 +143,7 @@ int main(int ac, char **av)
         flags |= CPU_FLAGS;
     if (ac == 3 && av[2][0] == 'G')
         flags |= GPU_FLAGS; 
-    init(flags); //TODO setup a unified lvl of abstraction for my API
+    init(flags); // setup a unified lvl of abstraction for my API
     //link();
     //run();
     return (0);
