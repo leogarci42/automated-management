@@ -21,7 +21,8 @@ static inline void init_memory_cpu()
     printf("memory allocated at: %p\n", runtime_mem_cpu);
 }
 
-void *allocate_cpu(size_t size, size_t align)
+static void *allocate_cpu(size_t size, size_t align)__attribute__((always_inline));
+static inline void *allocate_cpu(size_t size, size_t align)
 {
     //malloc equivalent for my runtime cpu mem
     offset = (offset + align - 1) & ~(align - 1);
@@ -44,6 +45,14 @@ static inline void init(uint8_t flags)
     //printf("Success\n");
 }
 
+void *cmalloc(size_t size, size_t align)
+{
+    if (cpu)
+        return (allocate_cpu(size, align));
+    else if (gpu)
+        return (allocate_gpu(size, align));
+}
+
 int main(int ac, char **av)
 {
     uint8_t flags = 0;
@@ -58,7 +67,7 @@ int main(int ac, char **av)
         flags |= GPU_FLAGS;
     if (ac == 3 && av[2][0] == 'G')
         flags |= CPU_FLAGS; 
-    init(flags);
+    init(flags); //TODO setup a unified lvl of abstraction for my API
     //link();
     //run();
     return (0);
