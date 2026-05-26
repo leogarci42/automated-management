@@ -32,6 +32,8 @@ jobs:
   tests-fedora-42:
     runs-on: fedora-42
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
       - name: Install Dependencies
         run: |
           sudo dnf -y update
