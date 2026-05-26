@@ -1,6 +1,6 @@
 # Compiler Architecture: From AST to Native Binary
 
-This document explains the overarching process of how your custom language (`.cucpp`) is translated into a runnable native executable, using the LLVM infrastructure.
+This document explains the overarching process of how my custom language (`.cucpp`) is translated into a runnable native executable, using the LLVM infrastructure.
 
 ## 1. The Frontend: Lexing & Parsing (AST Construction)
 Before we can generate any code, the compiler needs to understand the structure of the program. Your `tokenizer.c` acts as the frontend. It reads the source file text (e.g., `test.cucpp`) and turns it into an **Abstract Syntax Tree (AST)**. 
@@ -39,7 +39,14 @@ Native machine code (x86, ARM, Apple Silicon, ptx) is highly complex and platfor
 
 Our `generate_llvm_ir_cpu` function steps node-by-node through your AST and manually prints out the specific textual LLVM instructions.
 
-## 3. The Backend: Assembly and Linking (`clang`)
+## 3. The multi-target setup
+After generating the LLVM output (currently output.ll), to create a single executable that supports multiple targets (e.g., CPU and GPU), you have two main options for managing memory:
+- Use a single large memory pool on the host. When writing to a device, copy the data into this pool, and then transfer it to another device as needed.
+- Use separate memory for each device, with a switch on the host that retrieves the requested data and copies it to the appropriate device.
+
+See [memory](/docs/MEMORY.md) for more details.
+
+## 4. The Backend: Assembly and Linking (`clang`)
 Once our compiler writes the `output.ll` file, that file is technically valid LLVM language, but it's not a runnable binary. It's just text.
 
 We run `clang output.ll -o program_bin` inside the compiler (`system()` call) to cross the finish line. Under the hood, `clang` does this:

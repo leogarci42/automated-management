@@ -4,3 +4,4 @@ cucpp
 ./runtime/a.out
 a.out
 obj
+/script/*.local.sh
