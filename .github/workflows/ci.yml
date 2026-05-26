@@ -15,6 +15,7 @@ jobs:
 
   tests-ubuntu:
     runs-on: ubuntu-latest
+    needs: [init]
     steps:
       - name: Install Dependencies
         run: |
@@ -29,7 +30,7 @@ jobs:
 
   tests-fedora-42:
     runs-on: fedora-42
-    needs: [init, build]
+    needs: [init]
     steps:
       - name: Install Dependencies
         run: |
