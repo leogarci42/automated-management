@@ -66,6 +66,11 @@ debug: CFLAGS += -g3 -DTRACK_FD -fsanitize=address,undefined -O0 --pedantic-erro
 debug: re
 	
 
+test:
+	@./script/test_integration.sh
+	@rm -f a.out runtime_check test_runtime warnings.txt
+	@make --no-print-directory fclean
+
 .PHONY: all clean fclean re $(DIRS) rc 
 rc:
 	@make re --no-print-directory && make clean --no-print-directory

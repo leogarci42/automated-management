@@ -15,7 +15,7 @@ for test_file in ./example/*; do
         cat warnings.txt
         EXIT_CODE=1
     else
-        echo "$test_file passed."
+        echo -e "\e[32m$test_file passed.\e[0m"
     fi
 done
 
@@ -37,7 +37,7 @@ if ! grep -q "^GPU memory allocated at:" runtime_check; then
 fi
 
 if (( EXIT_CODE == 0 )); then
-    echo "Congrats all tests went through successfully!"
+    echo -e "\e[32mCongrats all tests went through successfully!\e[0m"
 fi
 
 exit $EXIT_CODE
