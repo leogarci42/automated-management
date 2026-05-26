@@ -19,6 +19,7 @@ jobs:
     steps:
       - name: List files and show Makefile
         run: |
+          cd ..
           pwd
           ls -lR
           cat Makefile
