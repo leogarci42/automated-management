@@ -23,7 +23,7 @@ if (( EXIT_CODE != 0 )); then
     exit $EXIT_CODE
 fi
 
-cc -Wextra -Wall -Werror -g -I/run/current-system/sw/include -L/run/current-system/sw/lib -lOpenCL ./runtime/linux.c -o test_runtime
+cc -Wextra -Wall -Werror -g -lOpenCL ./runtime/linux.c -o test_runtime
 chmod +x ./test_runtime
 ./test_runtime CPU GPU >runtime_check;
 if ! grep -q "^CPU memory allocated at:" runtime_check; then 
