@@ -7,16 +7,12 @@ on:
     branches: [ main ]
 
 jobs:
-  init:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
   tests-ubuntu:
     runs-on: ubuntu-latest
-    needs: [init]
-    steps:
+    
+    steps: 
+      - name: Checkout repository
+        uses: actions/checkout@v4
       - name: Install Dependencies
         run: |
           sudo apt-get update
