@@ -39,7 +39,7 @@ jobs:
       - name: Install Dependencies
         run: |
           dnf -y update
-          dnf -y install @development-tools readline-devel opencl-headers pocl-devel
+          dnf -y install @development-tools readline-devel opencl-headers pocl-devel clang
       - name: Build cucpp
         run: |
           make re
