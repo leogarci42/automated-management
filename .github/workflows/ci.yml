@@ -31,7 +31,6 @@ jobs:
 
   tests-fedora-42:
     runs-on: fedora-42
-    needs: [init]
     steps:
       - name: Install Dependencies
         run: |
