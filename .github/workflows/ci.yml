@@ -18,10 +18,10 @@ jobs:
     needs: [init]
     steps:
       - name: List files and show Makefile
-          run: |
-            pwd
-            ls -l
-            cat Makefile
+        run: |
+          pwd
+          ls -l
+          cat Makefile
       - name: Install Dependencies
         run: |
           sudo apt-get update
