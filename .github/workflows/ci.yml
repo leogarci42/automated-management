@@ -35,7 +35,8 @@ jobs:
       - name: Install Dependencies
         run: |
           sudo dnf -y update
-          sudo dnf -y install @development-tools readline-devel
+          sudo dnf -y install @development-tools readline-devel ocl-icd-opencl-dev
+
       - name: Build cucpp
         run: |
           make re

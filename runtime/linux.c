@@ -94,7 +94,7 @@ static inline void init(uint8_t flags)
         init_memory_gpu();
     }
     if (flags & GPU_FLAGS && flags & CPU_FLAGS)
-        {}; // setup a third-shared memory
+        {}; //TODO setup a third-shared memory
     //printf("Success\n");
 }
 
