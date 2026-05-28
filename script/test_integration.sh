@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-make --no-print-directory
+make 
 chmod +x ./cucpp
 EXIT_CODE=0
 echo "Running tests in ./example..."
@@ -17,7 +17,7 @@ for test_file in ./example/*; do
         echo -e "\e[32m$test_file passed.\e[0m"
     fi
 done
-make --no-print-directory fclean
+make fclean
 rm -f a.out warnings.txt
 if (( EXIT_CODE != 0 )); then
     exit $EXIT_CODE

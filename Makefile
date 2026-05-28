@@ -34,44 +34,45 @@ SRC =	./src/main.c \
 OBJ = $(addprefix $(OBJ_DIR)/, $(SRC:.c=.o))
 DIRS = $(sort $(dir $(OBJ)))
 
-MAKE = make -C
+MAKEFLAGS += --no-print-directory --silent
+
 
 all: $(NAME)
 
 $(NAME): $(OBJ)
-	@printf "$(BLUE)Compiling $(NAME)...$(RESET)\n"
-	@$(CC) $(CFLAGS) $(OBJ) -o $(NAME) $(LDFLAGS)
-	@printf "$(GREEN)Compilation successful!$(RESET)\n"
+	printf "$(BLUE)Compiling $(NAME)...$(RESET)\n"
+	$(CC) $(CFLAGS) $(OBJ) -o $(NAME) $(LDFLAGS)
+	printf "$(GREEN)Compilation successful!$(RESET)\n"
 
 
 $(OBJ_DIR)/%.o: %.c | $(DIRS)
-	@printf "$(YELLOW)Compiling $<...$(RESET)\n"
-	@$(CC) $(CFLAGS) -c $< -o $@
+	printf "$(YELLOW)Compiling $<...$(RESET)\n"
+	$(CC) $(CFLAGS) -c $< -o $@
 
 $(DIRS):
-	@mkdir -p $@
+	mkdir -p $@
 
 clean:
-	@printf "$(RED)Cleaning object files...$(RESET)\n"
-	@rm -rf $(OBJ_DIR)
+	printf "$(RED)Cleaning object files...$(RESET)\n"
+	rm -rf $(OBJ_DIR)
 
 fclean: clean
-	@printf "$(RED)Cleaning executable $(NAME)...$(RESET)\n"
-	@rm -f $(NAME)
+	printf "$(RED)Cleaning executable $(NAME)...$(RESET)\n"
+	rm -f $(NAME)
 
-re: fclean all
+re: fclean
+	$(MAKE) all
 
 debug: CFLAGS += -g3 -DTRACK_FD -fsanitize=address,undefined -O0 --pedantic-errors -Wpedantic -fno-omit-frame-pointer -DTRACK_FD
 debug: re
 	
 
 test:
-	@./script/test_integration.sh
-	@make --no-print-directory fclean
+	MAKELEVEL= ./script/test_integration.sh
 
 .PHONY: all clean fclean re $(DIRS) rc test
-rc:
-	@make re --no-print-directory && make clean --no-print-directory
+rc: re
+	$(MAKE) clean
 
 
 RESET  = \e[0m
