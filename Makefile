@@ -2,7 +2,6 @@ CC = cc
 NAME = cucpp
 CFLAGS = -Wall -Wextra -I./includes/ -g3 -Wno-unused-command-line-argument -fPIE
 LDFLAGS = -lreadline
-
 # check if nixOS
 ifneq ($(wildcard /run/current-system/sw/lib/),)
     CFLAGS += -I/run/current-system/sw/include
@@ -68,10 +67,9 @@ debug: re
 
 test:
 	@./script/test_integration.sh
-	@rm -f a.out runtime_check test_runtime warnings.txt
 	@make --no-print-directory fclean
 
-.PHONY: all clean fclean re $(DIRS) rc 
+.PHONY: all clean fclean re $(DIRS) rc test
 rc:
 	@make re --no-print-directory && make clean --no-print-directory
 
