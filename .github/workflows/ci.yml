@@ -2,7 +2,7 @@ name: Compiler CI
 
 on:
   push:
-    branches: [ main, dev ]
+    branches: [ main, dmm/* ]
   pull_request:
     branches: [ main ]
 
