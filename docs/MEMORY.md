@@ -81,10 +81,44 @@ simple visualization of it:
 
 ### What are the pros and cons of using an DMM:
 - pros:
-    - more scalable and fault tolerant.
+    - scalable 
+    - fault tolerant.
 - cons:
     - Harder to implement.
 
+
+## PGAS (Partitional Global Address Space) Model
+
+### What is a PGAS Model
+PGAS is a parallel programming model, it offers the programmer an abstract shared address space model. This abstract shared address space model allow us to:
+
+- simplify the programming task.
+- facilitates data-locality, thread-based programming and asynchronous communications.
+
+it can be represented as nodes, each nodes being one processor, and in a DMM context, each nodes containes its own processor and memory, and this memory basically point to the next node memory block.
+```
+       +-----------------------------------------------------------+
+       |             GLOBAL ADDRESS SPACE (Logical View)           |
+       |  [ Segment 1 ] [ Segment 2 ] [ Segment 3 ] [ Segment 4 ]  |
+       +---------------------------+-------------------------------+
+                                   |
+           +-----------------------+-----------------------+
+           |                       |                       |
+    +------+-------+        +------+-------+        +------+-------+
+    |    NODE 1    |        |    NODE 2    |        |    NODE 3    |
+    | +----------+ |        | +----------+ |        | +----------+ |
+    | |   CPU    | |        | |   GPU    | |        | |   CPU    | |
+    | +----+-----+ |        | +----+-----+ |        | +----+-----+ |
+    |      |       |        |      |       |        |      |       |
+    | +----+-----+ |        | +----+-----+ |        | +----+-----+ |
+    | | Local Mem| <--------> | Local Mem| <--------> | Local Mem| |
+    | | (Global) | |        | | (Global) | |        | | (Global) | |
+    | +----------+ |        | +----------+ |        | +----------+ |
+    +------+-------+        +------+-------+        +------+-------+
+           |                       |                       |
+           +-----------------------+-----------------------+
+                         INTERCONNECT FABRIC
+```
 ## DOCUMENTATION
 
 [Shared Versus Distributed Memory Multiprocessors - Harry F. Jordan](https://www.ecmwf.int/sites/default/files/elibrary/1990/10302-shared-versus-distributed-memory-multiprocessors.pdf)
@@ -92,3 +126,7 @@ simple visualization of it:
 [Very High-Speed Computing Systems - Michael J. Flynn](https://safari.ethz.ch/architecture/fall2019/lib/exe/fetch.php?media=flynn_1966.pdf)
 
 [Compiling programs for distributed-memory multiprocessors - David Callahan & Ken Kennedy](https://www.researchgate.net/publication/225208856_Compiling_programs_for_distributed-memory_multiprocessors)
+
+[Introduction to the Partitioned Global Address Space (PGAS) Programming Model - David E. Hudak](https://www.osc.edu/sites/osc.edu/files/staff_files/dhudak/pgas-tutorial.pdf)
+
+[Parallel Performance of Declarative Programming using a PGAS Model - Rui Machado, Salvador Abreu and Daniel Diaz](https://cri-dist.univ-paris1.fr/diaz/publications/ADAPTIVE/padl13.pdf)

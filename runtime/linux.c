@@ -14,11 +14,11 @@
 #define DEV_TYPE_CPU (1 << 0)
 #define DEV_TYPE_GPU (1 << 1)
 
-// branch prediction hints for the backend
+// branch prediction for the backend
 #define LIKELY(x)   __builtin_expect(!!(x), 1)
 #define UNLIKELY(x) __builtin_expect(!!(x), 0)
 
-// packed structural layout ordered largest to smallest to prevent padding
+// packed structure ordered largest to smallest to prevent padding
 typedef struct __attribute__((packed, aligned(8))) {
     void     *mem_base;
     size_t   size;
@@ -227,6 +227,7 @@ static inline void teardown_topology()
     }
 }
 
+__attribute__((always_inline, cold))
 static void assert_integrity(int node_id, size_t alloc_idx, int expected_val)
 {
     dmm_entry_t *entry = &g_state.entries[alloc_idx];
@@ -239,6 +240,7 @@ static void assert_integrity(int node_id, size_t alloc_idx, int expected_val)
     }
 }
 
+__attribute__((always_inline, cold))
 static void stress_test_harness()
 {
     printf("--- Starting distributed stress test ---\n");
