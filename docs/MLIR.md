@@ -2,9 +2,9 @@
 
 **MLIR** or *Multi-Level Intermediate Representation* is built on **LLVM**, and adds a level of abstraction to the LLVM with something called dialects, but to understand what is **MLIR** we first need to understand what is **LLVM**.
 
-## LLVM
+## LLVM IR
 
-**LLVM** is a toolchain built for compilers, it's a language that allow us to support both stactic and dynamic compilations, it's using **SSA** (*Static Single Assignement*), and adds various layers of optimizations when compiled down to machine code. it's also hold various backend allowing us to aim for various architecture, here is a (non-exhausting) list:
+**LLVM IR** is a toolchain built for compilers, it's a language that allow us to support both stactic and dynamic compilations, it's using **SSA** (*Static Single Assignement*), and adds various layers of optimizations when compiled down to machine code. it's also hold various backend allowing us to aim for various architecture, here is a (non-exhausting) list:
 ```
 Registered Targets:
     aarch64     - AArch64 (little endian)
@@ -99,3 +99,67 @@ This is key because it's allow us kind of like `C++` to define our custom operat
 Well, **MLIR** bring a sense of *progressive lowering*, allowing us to keep and optimize our rich semantics and splitting our steps in a more gentle lowering allow the compiler at each step to look and see how to lower properly optimizing in the way.
 
 Let's see how it optimize through a concrete example:
+
+Step 1: The high-level representation:
+ 
+ --> firstly **MLIR** will just take your code and represent it as a high-level graph, without caring about memory allocations or hardware details. This high-level representation could be seen as:
+ ```
+/* high-level MLIR representation */
+%tensor2 = custom.multiply %input_tensor, %tensor1   : tensor<1024xf32>
+%tensor3 = custom.add      %tensor2, %tensor1   : tensor<1024xf32>
+
+[%name] [=] [dialect].[operation] [inputs, inputs] [:] [data_type<shape>]
+```
+
+Let's now define a few things:
+
+**Dialect**
+A dialect could be seen as a self-contained module that extends the compiler with it's own unique vocabulary it can group a specific set of:
+
+- operations
+- data types
+- attributes
+
+But there is already a few core dialect inside MLIR, let's look at them:
+
+```
+- builtin -> the foundational one that defines basic type like int or float
+
+- arith -> the one that handles standard arithmetic operations (add, multiply, bit shifts)
+for integers and floats
+
+- tensor / memref -> those are group together because they both handle multi-dimensional array
+but one does abstract graph [tensor], and the other concrete physical memory buffer [memref]
+
+- affine -> the one used to optimize structured loops and memory access patterns
+
+- llvm -> this is the lowest one which is a 1:1 replica of traditional LLVM IR
+```
+
+**Data Types**
+
+There is two groups of data types, the primitive / built-in and the dialect specific one
+
+**Primitive Data Types**
+
+There only two primitive data types, integer and float they are represented as:
+```
+integers are written as i, followed by the bit-width like i1 for booleans,i8 for short,
+i32 and i64
+floating point are written as f, followed by the bit-width like f16, f32, f64
+```
+**Built-in Data Types**
+
+Those consists of a collection of primitive data types and crucial for high-level optimizations
+```
+tensor are written as tensor<4x4xf32> which here represents a 4 x 4 grid of 32-bit float
+memref are written as memref<4x4xf32> which here represents a 4 x 4 memory ref to physical RAM
+vector are written as vector<4xf32> which represents a 1D vector of 4 floats
+```
+**Dialect-Specific Types or DST**
+
+Any dialect can introduce there own custom types. Those are written as:
+```
+![dialect name].[variable name]<primitive data type>
+the '!' here symbolize a DST to avoid conflicts
+```
